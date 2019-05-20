@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "318343902579",
+    "firebase_url": "https://cnkfirebaseproject.firebaseio.com",
+    "project_id": "cnkfirebaseproject",
+    "storage_bucket": "cnkfirebaseproject.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:318343902579:android:9675d7497f4eb2b1",
+        "android_client_info": {
+          "package_name": "com.example.cnk"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "318343902579-e2vot6iie0mtc7l980evp9b99krikcij.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.cnk",
+            "certificate_hash": "af4e1c71741cb4433dadf2817ea41d7ebc2f9528"
+          }
+        },
+        {
+          "client_id": "318343902579-2onnvksfbj355hao89j089tqsb41a4c1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA48y_TLrZGkuWz0Kzi5QNG9ZuiXHK2B-k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "318343902579-2onnvksfbj355hao89j089tqsb41a4c1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

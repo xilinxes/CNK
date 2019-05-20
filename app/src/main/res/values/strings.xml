@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">CNK</string>
+    <string name="btnSend">Отправить</string>
+    <string name="editMsg">Ввод сообщения</string>
+</resources>
