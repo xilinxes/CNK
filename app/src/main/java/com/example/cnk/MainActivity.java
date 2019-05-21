@@ -1,5 +1,6 @@
 package com.example.cnk;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -12,6 +13,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -24,23 +26,33 @@ public class MainActivity extends AppCompatActivity {
     private static int MAX_MESSAGE_LENGTH = 150;
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     DatabaseReference myRef = database.getReference("messages");
-    Button btnInput,btnClear;
+    Button btnInput,btnClear,signout;
     EditText editMsg;
     ArrayList<String> messages = new ArrayList<>();
     RecyclerView recMsgs;
+    private FirebaseAuth mAuth ;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mAuth = FirebaseAuth . getInstance ();
         btnClear = (Button) findViewById(R.id.btnClear);
         btnInput = (Button) findViewById(R.id.btnSndMsg);
+        signout = findViewById(R.id.btnSignOut);
         editMsg = (EditText) findViewById(R.id.editMsg);
         recMsgs = (RecyclerView) findViewById(R.id.recyclerMsg);
         recMsgs.setLayoutManager(new LinearLayoutManager(this));
         final DataAdapter dataAdapter = new DataAdapter(this, messages);
         recMsgs.setAdapter(dataAdapter);
+        signout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAuth.getInstance().signOut();
+                startActivity(new Intent(MainActivity.this, Authorization.class));
+            }
+        });
         btnClear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
