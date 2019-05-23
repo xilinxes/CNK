@@ -1,9 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".DialogsWindow">
+    tools:context=".DialogsWindow"
+    android:layout_weight="1">
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/dialogs"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1">
+    </android.support.v7.widget.RecyclerView>
+    <Button
+        android:id="@+id/addDialog"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:text="Добавить диалог "
+        android:textSize="20dp"/>
 
-</android.support.constraint.ConstraintLayout>
+</LinearLayout>

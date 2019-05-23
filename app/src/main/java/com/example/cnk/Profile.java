@@ -1,5 +1,6 @@
 package com.example.cnk;
 
+import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -35,6 +36,13 @@ public class Profile extends AppCompatActivity {
         dialogs = findViewById(R.id.dialogs);
         surname = findViewById(R.id.surname);
         save = findViewById(R.id.save);
+        dialogs.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), DialogsWindow.class);
+                startActivity(intent);
+            }
+        });
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -43,6 +51,7 @@ public class Profile extends AppCompatActivity {
                 users.child(userID).child("surname").setValue(surname.getText().toString());
             }
         });
+
         /*users.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
