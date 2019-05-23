@@ -15,6 +15,8 @@ import java.util.Map;
 import java.util.Random;
 
 public class MessageService extends FirebaseMessagingService {
+    String NOTIFICATION_CNANNEL_ID = "Messages";
+
     public MessageService() {
     }
 
@@ -54,7 +56,6 @@ public class MessageService extends FirebaseMessagingService {
 
     private void showNotification(String title, String body) {
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        String NOTIFICATION_CNANNEL_ID = "Messages";
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CNANNEL_ID, "Notifff", NotificationManager.IMPORTANCE_HIGH);
             notificationChannel.setDescription("EDMT Channel");

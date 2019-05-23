@@ -1,6 +1,7 @@
 package com.example.cnk;
 
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -16,8 +17,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
-public class Authorization extends AppCompatActivity {
+import java.io.Serializable;
+
+public class Authorization extends AppCompatActivity implements Serializable {
     TextView reg;
     private EditText edtEmail, edtPass;
     private Button btnOK;
@@ -29,6 +33,7 @@ public class Authorization extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_authorization);
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.red)));
         mAuth = FirebaseAuth.getInstance();
         reg = findViewById(R.id.edtRegistration);
         edtEmail = findViewById(R.id.edtEmail2);
@@ -44,7 +49,8 @@ public class Authorization extends AppCompatActivity {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 if (firebaseAuth.getCurrentUser() != null) {
-                    startActivity(new Intent(Authorization.this, MainActivity.class));
+                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                    startActivity(intent);
                 }
             }
         };

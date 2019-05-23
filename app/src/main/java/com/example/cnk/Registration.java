@@ -1,6 +1,7 @@
 package com.example.cnk;
 
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -16,17 +17,22 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class Registration extends AppCompatActivity {
     Button ok;
+    FirebaseDatabase database = FirebaseDatabase.getInstance();
     private FirebaseAuth mAuth;
     private EditText email, pass;
     private TextView vxod;
+    private DatabaseReference users = database.getReference("Users");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registration);
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.red)));
         vxod = findViewById(R.id.edtRegistration);
         email = findViewById(R.id.edtEmail2);
         pass = findViewById(R.id.edtPass2);
@@ -51,7 +57,7 @@ public class Registration extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         FirebaseUser currentUser = mAuth.getCurrentUser();
-      //  currentUser.updatePassword()
+        //  currentUser.updatePassword()
     }
 
     private void createUser() {
@@ -64,10 +70,16 @@ public class Registration extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
+                            users.child(String.valueOf(mail.hashCode())).setValue(mail.hashCode());
+                            users.child(String.valueOf(mail.hashCode())).child("mail").setValue(mail);
+                            users.child(String.valueOf(mail.hashCode())).child("password").setValue(password);
                             Log.d("Tag", "createUserWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
                             user.updateEmail(mail);
                             user.updatePassword(password);
+                            Intent intent = new Intent(getApplicationContext(), Profile.class);
+                            intent.putExtra("ID", String.valueOf(mail.hashCode()));
+                            startActivity(intent);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w("Tag", "createUserWithEmail:failure", task.getException());
