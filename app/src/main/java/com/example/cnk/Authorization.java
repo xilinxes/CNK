@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
@@ -17,19 +18,25 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.io.Serializable;
 
 public class Authorization extends AppCompatActivity implements Serializable {
     TextView reg;
+    FirebaseDatabase database = FirebaseDatabase.getInstance();
+    SharedPreferences sPref;
+    DatabaseReference myRef = database.getReference("Users");
+    String currentUsername;
     private EditText edtEmail, edtPass;
     private Button btnOK;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
-    private DatabaseReference myRef;
-    SharedPreferences sPref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +51,8 @@ public class Authorization extends AppCompatActivity implements Serializable {
         btnOK.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                name();
+                saveText();
                 signIn();
             }
         });
@@ -51,7 +60,8 @@ public class Authorization extends AppCompatActivity implements Serializable {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 if (firebaseAuth.getCurrentUser() != null) {
-                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                    Intent intent = new Intent(getApplicationContext(), DialogsWindow.class);
+                    saveText();
                     startActivity(intent);
                 }
             }
@@ -91,10 +101,40 @@ public class Authorization extends AppCompatActivity implements Serializable {
         }
 
     }
+
     void saveText() {
-        sPref = getSharedPreferences("Saves",MODE_PRIVATE);
+        sPref = getSharedPreferences("Saves", MODE_PRIVATE);
         SharedPreferences.Editor ed = sPref.edit();
+        ed.putString("Name", currentUsername);
         ed.putInt("USER_ID", edtEmail.getText().toString().hashCode());
         ed.commit();
+    }
+    void name(){
+        myRef.child(String.valueOf(edtEmail.getText().hashCode())).child("name").addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                currentUsername = dataSnapshot.getValue(String.class);
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 }

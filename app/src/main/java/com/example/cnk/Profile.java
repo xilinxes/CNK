@@ -53,11 +53,13 @@ public class Profile extends AppCompatActivity {
                 loadText();
                 users.child(userID).child("name").setValue(name.getText().toString());
                 users.child(userID).child("surname").setValue(surname.getText().toString());
+
                 sPref = getSharedPreferences("Saves", MODE_PRIVATE);
                 SharedPreferences.Editor ed = sPref.edit();
                 ed.putString("Name", name.getText().toString());
                 ed.putString("Surname", surname.getText().toString());
                 ed.commit();
+
                 Toast.makeText(getApplicationContext(),"Сохранено",Toast.LENGTH_LONG).show();
             }
         });

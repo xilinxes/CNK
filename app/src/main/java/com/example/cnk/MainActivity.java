@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<String> messages = new ArrayList<>();
     RecyclerView recMsgs;
     SharedPreferences sPref;
-    String name, userID;
+    String name, userID,currentWithUserHashId,dlgnm;
     String dialogName = "Диалог с ";
     private FirebaseAuth mAuth;
 
@@ -41,9 +41,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         sPref = getSharedPreferences("Saves", MODE_PRIVATE);
-        final String dlgnm = sPref.getString("CurrentDialogName", "");
+        dlgnm = sPref.getString("CurrentDialogName", "");
         dialogName += sPref.getString("CurrentDialogName", "");
         name = sPref.getString("Name", "");
+        currentWithUserHashId = sPref.getString("CurrentWithUserHashId","");
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.red)));
         getSupportActionBar().setTitle(dialogName);
         startService(new Intent(this, MessageService.class));
@@ -87,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Слишком много символов", Toast.LENGTH_SHORT).show();
                     return;
                 }
+                myRef.child(currentWithUserHashId).child("dialogs").child(name).push().setValue(msg);
                 myRef.child(userID).child("dialogs").child(dlgnm).push().setValue(msg);
                 editMsg.setText("");
             }

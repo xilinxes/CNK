@@ -2,6 +2,7 @@ package com.example.cnk;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -9,11 +10,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -32,18 +31,22 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
     String userID;
     ArrayList<String> messages = new ArrayList<>();
     Button dialog;
+    String currentUsername, currentWithUserHashId;
+    Boolean pr1, pr2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dialogs_window);
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.red)));
         loadText();
         name = findViewById(R.id.name);
         dialog = findViewById(R.id.addDialog);
         recMsgs = (RecyclerView) findViewById(R.id.dialogs);
         recMsgs.setLayoutManager(new LinearLayoutManager(this));
-        final DataAdapter dataAdapter = new DataAdapter(this, messages,this);
+        final DataAdapter dataAdapter = new DataAdapter(this, messages, this);
         recMsgs.setAdapter(dataAdapter);
+
 
         myRef.child(userID).child("dialogs").addChildEventListener(new ChildEventListener() {
             @Override
@@ -77,21 +80,49 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
         dialog.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                boolean t = true;
-                database.getReference("parent")
-                        .orderByChild("childNode")
-                        .startAt("[a-zA-Z0-9]*")
-                        .endAt(name.getText().toString());
-                //Toast.makeText(getApplicationContext(),)
-                //myRef.child(userID).child("dialogs").child(name.getText().toString()).setValue(name.getText().toString());
-                //name.setText("");
+
+                myRef.orderByChild("name").equalTo(name.getText().toString()).addChildEventListener(new ChildEventListener() {
+                    @Override
+                    public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                        currentWithUserHashId = dataSnapshot.getKey();
+                        myRef.child(userID).child("dialogs").child(name.getText().toString()).setValue(name.getText().toString());
+                        myRef.child(currentWithUserHashId).child("dialogs").child(currentUsername).setValue(currentUsername);
+                        name.setText("");
+                    }
+
+                    @Override
+                    public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+                    }
+
+                    @Override
+                    public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+                    }
+
+                    @Override
+                    public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+
+                //Toast.makeText(getApplicationContext(), "Такого пользователя не существует", Toast.LENGTH_LONG).show();
             }
+
+
         });
     }
-        void loadText () {
-            sPref = getSharedPreferences("Saves", MODE_PRIVATE);
-            this.userID = String.valueOf(sPref.getInt("USER_ID", 1));
-        }
+
+    void loadText() {
+        sPref = getSharedPreferences("Saves", MODE_PRIVATE);
+        this.currentUsername = sPref.getString("Name", "");
+        this.userID = String.valueOf(sPref.getInt("USER_ID", 1));
+    }
 
 
     @Override
@@ -99,6 +130,7 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
         sPref = getSharedPreferences("Saves", MODE_PRIVATE);
         SharedPreferences.Editor ed = sPref.edit();
         ed.putString("CurrentDialogName", messages.get(position).toString());
+        ed.putString("CurrentWithUserHashId", currentWithUserHashId);
         ed.commit();
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
