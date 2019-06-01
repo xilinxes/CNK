@@ -1,6 +1,7 @@
 package com.example.cnk;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -28,6 +29,7 @@ public class Authorization extends AppCompatActivity implements Serializable {
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private DatabaseReference myRef;
+    SharedPreferences sPref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,5 +90,11 @@ public class Authorization extends AppCompatActivity implements Serializable {
                     );
         }
 
+    }
+    void saveText() {
+        sPref = getSharedPreferences("Saves",MODE_PRIVATE);
+        SharedPreferences.Editor ed = sPref.edit();
+        ed.putInt("USER_ID", edtEmail.getText().toString().hashCode());
+        ed.commit();
     }
 }

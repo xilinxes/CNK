@@ -1,6 +1,7 @@
 package com.example.cnk;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -27,6 +28,7 @@ public class Registration extends AppCompatActivity {
     private EditText email, pass;
     private TextView vxod;
     private DatabaseReference users = database.getReference("Users");
+    SharedPreferences sPref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +49,7 @@ public class Registration extends AppCompatActivity {
         ok.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                saveText();
                 createUser();
             }
         });
@@ -78,7 +81,6 @@ public class Registration extends AppCompatActivity {
                             user.updateEmail(mail);
                             user.updatePassword(password);
                             Intent intent = new Intent(getApplicationContext(), Profile.class);
-                            intent.putExtra("ID", String.valueOf(mail.hashCode()));
                             startActivity(intent);
                         } else {
                             // If sign in fails, display a message to the user.
@@ -90,6 +92,13 @@ public class Registration extends AppCompatActivity {
                     }
                 });
     }
+    void saveText() {
+        sPref = getSharedPreferences("Saves",MODE_PRIVATE);
+        SharedPreferences.Editor ed = sPref.edit();
+        ed.putInt("USER_ID", email.getText().toString().hashCode());
+        ed.commit();
+    }
+
 }
 
 

@@ -1,41 +1,34 @@
 package com.example.cnk;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.List;
 
-
-public class DataAdapter extends RecyclerView.Adapter<ViewHolder>  {
+public class DataAdapterForMainMessages extends RecyclerView.Adapter<DataAdapterForMainMessages.ViewHLDER> {
     ArrayList<String> messages;
     LayoutInflater inflater;
-    private OnNoteListener onNoteListener;
 
-
-    public DataAdapter(Context context, ArrayList<String> messages, OnNoteListener onNoteListener) {
+    public DataAdapterForMainMessages(Context context, ArrayList<String> messages) {
         this.messages = messages;
         this.inflater = LayoutInflater.from(context);
-        this.onNoteListener = onNoteListener;
     }
 
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+    public ViewHLDER onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         View view = inflater.inflate(R.layout.item_msg, viewGroup, false);
-        return new ViewHolder(view, onNoteListener);
+        return new ViewHLDER(view);
     }
 
-
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
+    public void onBindViewHolder(@NonNull ViewHLDER viewHolder, int i) {
         String msg = messages.get(i);
         viewHolder.msgg.setText(msg);
     }
@@ -43,10 +36,17 @@ public class DataAdapter extends RecyclerView.Adapter<ViewHolder>  {
     @Override
     public int getItemCount() {
         return messages.size();
+
     }
 
-    public interface OnNoteListener{
-        void onNoteClick(int position);
+    public class ViewHLDER extends RecyclerView.ViewHolder {
+        TextView msgg;
+
+        public ViewHLDER(View itemView) {
+            super(itemView);
+            msgg = itemView.findViewById(R.id.messageItem);
+        }
+
     }
 
 }
