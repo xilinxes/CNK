@@ -28,6 +28,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.io.Serializable;
 
 public class Authorization extends AppCompatActivity implements Serializable {
+    //fixme
     TextView reg;
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     SharedPreferences sPref;
