@@ -33,6 +33,7 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
     Button dialog;
     String currentUsername, currentWithUserHashId;
     Boolean pr1, pr2;
+    int pos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,12 +128,12 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
 
     @Override
     public void onNoteClick(int position) {
-        sPref = getSharedPreferences("Saves", MODE_PRIVATE);
         SharedPreferences.Editor ed = sPref.edit();
-        ed.putString("CurrentDialogName", messages.get(position).toString());
+        ed.putString("CurrentDialogName", messages.get(pos).toString());
         ed.putString("CurrentWithUserHashId", currentWithUserHashId);
         ed.commit();
-        Intent intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         startActivity(intent);
     }
+
 }

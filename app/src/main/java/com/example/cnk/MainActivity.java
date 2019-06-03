@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
         dlgnm = sPref.getString("CurrentDialogName", "");
         dialogName += sPref.getString("CurrentDialogName", "");
         name = sPref.getString("Name", "");
-        currentWithUserHashId = sPref.getString("CurrentWithUserHashId","");
+        currentWithUserHashId = sPref.getString("CurrentWithUserHashId","rrr");
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.red)));
         getSupportActionBar().setTitle(dialogName);
         startService(new Intent(this, MessageService.class));
@@ -59,6 +59,32 @@ public class MainActivity extends AppCompatActivity {
         recMsgs.setAdapter(dataAdapter);
         sPref = getSharedPreferences("Saves", MODE_PRIVATE);
         userID = String.valueOf(sPref.getInt("USER_ID", 1));
+        myRef.orderByChild("name").equalTo(dlgnm.toString()).addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                currentWithUserHashId = dataSnapshot.getKey();
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
 
         signout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -88,9 +114,12 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Слишком много символов", Toast.LENGTH_SHORT).show();
                     return;
                 }
+
+
                 myRef.child(currentWithUserHashId).child("dialogs").child(name).push().setValue(msg);
                 myRef.child(userID).child("dialogs").child(dlgnm).push().setValue(msg);
                 editMsg.setText("");
+                Toast.makeText(getApplicationContext(),currentWithUserHashId.toString(),Toast.LENGTH_SHORT).show();
             }
         });
         myRef.child(userID).child("dialogs").child(dlgnm).addChildEventListener(new ChildEventListener() {
