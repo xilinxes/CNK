@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
         sPref = getSharedPreferences("Saves", MODE_PRIVATE);
         dlgnm = sPref.getString("CurrentDialogName", "");
         dialogName += sPref.getString("CurrentDialogName", "");
-        name = sPref.getString("Name", "");
+        name = sPref.getString("Nickname", "");
         currentWithUserHashId = sPref.getString("CurrentWithUserHashId","rrr");
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.red)));
         getSupportActionBar().setTitle(dialogName);
@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
         recMsgs.setAdapter(dataAdapter);
         sPref = getSharedPreferences("Saves", MODE_PRIVATE);
         userID = String.valueOf(sPref.getInt("USER_ID", 1));
-        myRef.orderByChild("name").equalTo(dlgnm.toString()).addChildEventListener(new ChildEventListener() {
+        myRef.orderByChild("nickname").equalTo(dlgnm.toString()).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 currentWithUserHashId = dataSnapshot.getKey();

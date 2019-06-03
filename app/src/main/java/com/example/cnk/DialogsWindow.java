@@ -31,7 +31,7 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
     String userID;
     ArrayList<String> messages = new ArrayList<>();
     Button dialog;
-    String currentUsername, currentWithUserHashId;
+    String currentUsernickname, currentWithUserHashId;
     Boolean pr1, pr2;
     int pos;
 
@@ -82,12 +82,12 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
             @Override
             public void onClick(View v) {
 
-                myRef.orderByChild("name").equalTo(name.getText().toString()).addChildEventListener(new ChildEventListener() {
+                myRef.orderByChild("nickname").equalTo(name.getText().toString()).addChildEventListener(new ChildEventListener() {
                     @Override
                     public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                         currentWithUserHashId = dataSnapshot.getKey();
                         myRef.child(userID).child("dialogs").child(name.getText().toString()).setValue(name.getText().toString());
-                        myRef.child(currentWithUserHashId).child("dialogs").child(currentUsername).setValue(currentUsername);
+                        myRef.child(currentWithUserHashId).child("dialogs").child(currentUsernickname).setValue(currentUsernickname);
                         name.setText("");
                     }
 
@@ -121,7 +121,7 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
 
     void loadText() {
         sPref = getSharedPreferences("Saves", MODE_PRIVATE);
-        this.currentUsername = sPref.getString("Name", "");
+        this.currentUsernickname = sPref.getString("Nickname", "");
         this.userID = String.valueOf(sPref.getInt("USER_ID", 1));
     }
 
