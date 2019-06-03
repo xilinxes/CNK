@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
                 myRef.child(currentWithUserHashId).child("dialogs").child(name).push().setValue(msg);
                 myRef.child(userID).child("dialogs").child(dlgnm).push().setValue(msg);
                 editMsg.setText("");
-                Toast.makeText(getApplicationContext(),currentWithUserHashId.toString(),Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(),currentWithUserHashId.toString(),Toast.LENGTH_SHORT).show();
             }
         });
         myRef.child(userID).child("dialogs").child(dlgnm).addChildEventListener(new ChildEventListener() {

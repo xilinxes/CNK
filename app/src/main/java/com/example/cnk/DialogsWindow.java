@@ -13,12 +13,14 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
@@ -41,6 +43,7 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
         setContentView(R.layout.activity_dialogs_window);
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.red)));
         loadText();
+        takeUserNick();
         name = findViewById(R.id.name);
         dialog = findViewById(R.id.addDialog);
         recMsgs = (RecyclerView) findViewById(R.id.dialogs);
@@ -121,7 +124,6 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
 
     void loadText() {
         sPref = getSharedPreferences("Saves", MODE_PRIVATE);
-        this.currentUsernickname = sPref.getString("Nickname", "");
         this.userID = String.valueOf(sPref.getInt("USER_ID", 1));
     }
 
@@ -136,4 +138,29 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
         startActivity(intent);
     }
 
+    public void takeUserNick() {
+        myRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                currentUsernickname = (dataSnapshot.child(userID).child("nickname").getValue(String.class));
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        sPref = getSharedPreferences("Saves", MODE_PRIVATE);
+        SharedPreferences.Editor ed = sPref.edit();
+        ed.putString("CurrentDialogName", messages.get(pos).toString());
+        ed.putInt("CurrentWithUserHashId", sPref.getInt("USER_ID", 1));
+        ed.putString("USER_ID",userID);
+        ed.commit();
+
+    }
 }

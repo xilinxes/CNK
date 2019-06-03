@@ -52,8 +52,6 @@ public class Authorization extends AppCompatActivity implements Serializable {
         btnOK.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                name();
-                saveText();
                 signIn();
             }
         });
@@ -106,36 +104,9 @@ public class Authorization extends AppCompatActivity implements Serializable {
     void saveText() {
         sPref = getSharedPreferences("Saves", MODE_PRIVATE);
         SharedPreferences.Editor ed = sPref.edit();
-        ed.putString("Name", currentUsername);
         ed.putInt("USER_ID", edtEmail.getText().toString().hashCode());
         ed.commit();
     }
-    void name(){
-        myRef.child(String.valueOf(edtEmail.getText().hashCode())).child("name").addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                currentUsername = dataSnapshot.getValue(String.class);
-            }
 
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
 
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-    }
 }
