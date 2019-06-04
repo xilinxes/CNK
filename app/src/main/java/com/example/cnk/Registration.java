@@ -27,12 +27,20 @@ public class Registration extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private EditText email, pass;
     private TextView vxod;
+    private boolean check;
     private DatabaseReference users = database.getReference("Users");
     SharedPreferences sPref;
+    SharedPreferences.Editor ed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        sPref = getSharedPreferences("Saves", MODE_PRIVATE);
+        check = sPref.getBoolean("check", false);
+        if(check){
+            finish();
+            startActivity(new Intent(getApplicationContext(),Profile.class));
+        }
         setContentView(R.layout.activity_registration);
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.red)));
         vxod = findViewById(R.id.edtRegistration);
@@ -43,13 +51,13 @@ public class Registration extends AppCompatActivity {
         vxod.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(Registration.this, Authorization.class));
+                finish();
+                startActivity(new Intent(getApplicationContext(), Authorization.class));
             }
         });
         ok.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                saveText();
                 createUser();
             }
         });
@@ -60,7 +68,6 @@ public class Registration extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        //  currentUser.updatePassword()
     }
 
     private void createUser() {
@@ -80,8 +87,10 @@ public class Registration extends AppCompatActivity {
                             FirebaseUser user = mAuth.getCurrentUser();
                             user.updateEmail(mail);
                             user.updatePassword(password);
-                            Intent intent = new Intent(getApplicationContext(), Profile.class);
-                            startActivity(intent);
+                            save();
+                            finish();
+                            startActivity(new Intent(getApplicationContext(),Profile.class));
+
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w("Tag", "createUserWithEmail:failure", task.getException());
@@ -92,13 +101,17 @@ public class Registration extends AppCompatActivity {
                     }
                 });
     }
-    void saveText() {
-        sPref = getSharedPreferences("Saves",MODE_PRIVATE);
-        SharedPreferences.Editor ed = sPref.edit();
+    public void save(){
+        ed = sPref.edit();
         ed.putInt("USER_ID", email.getText().toString().hashCode());
         ed.commit();
     }
 
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
 }
 
 

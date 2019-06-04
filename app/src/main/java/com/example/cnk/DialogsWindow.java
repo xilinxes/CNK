@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -34,6 +35,7 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
     ArrayList<String> messages = new ArrayList<>();
     Button dialog;
     String currentUsernickname, currentWithUserHashId;
+    SharedPreferences.Editor ed;
     Boolean pr1, pr2;
     private double x1,x2,y1,y2;
 
@@ -42,6 +44,7 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dialogs_window);
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.red)));
+        sPref = getSharedPreferences("Saves", MODE_PRIVATE);
         loadText();
         takeUserNick();
         name = findViewById(R.id.name);
@@ -88,6 +91,7 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
                     @Override
                     public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                         currentWithUserHashId = dataSnapshot.getKey();
+                        Log.d("Test",currentUsernickname);
                         myRef.child(userID).child("dialogs").child(name.getText().toString()).setValue(name.getText().toString());
                         myRef.child(currentWithUserHashId).child("dialogs").child(currentUsernickname).setValue(currentUsernickname);
                         name.setText("");
@@ -123,7 +127,7 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
 
     void loadText() {
         sPref = getSharedPreferences("Saves", MODE_PRIVATE);
-        this.userID = String.valueOf(sPref.getInt("USER_ID", 1));
+        userID = String.valueOf(sPref.getInt("USER_ID", 1));
     }
 
 
@@ -137,6 +141,7 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 currentUsernickname = (dataSnapshot.child(userID).child("nickname").getValue(String.class));
+                Log.d("Test",currentUsernickname);
             }
 
             @Override
@@ -149,11 +154,6 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        sPref = getSharedPreferences("Saves", MODE_PRIVATE);
-        SharedPreferences.Editor ed = sPref.edit();
-        ed.putString("CurrentWithUserHashId", currentWithUserHashId);
-        ed.commit();
-
     }
 
     public void currwithusr(final int pos) {
@@ -161,10 +161,12 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 currentWithUserHashId = dataSnapshot.getKey();
-                SharedPreferences.Editor ed = sPref.edit();
+                ed = sPref.edit();
                 ed.putString("CurrentDialogName", messages.get(pos).toString());
                 ed.putString("CurrentWithUserHashId", currentWithUserHashId);
+             //   ed.putString("Nickname",currentUsernickname);
                 ed.commit();
+                finish();
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                 startActivity(intent);
             }
@@ -195,9 +197,13 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         Intent intent = new Intent(this,Profile.class);
+        ed = sPref.edit();
+        ed.putString("CurrentWithUserHashId", currentWithUserHashId);
+        ed.commit();
         finish();
         startActivity(intent);
         return super.onKeyDown(keyCode, event);
     }
+
 
 }

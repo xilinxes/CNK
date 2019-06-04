@@ -21,22 +21,24 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-public class Profile extends AppCompatActivity {
+public class    Profile extends AppCompatActivity {
     EditText name, surname, nickname;
     Button save, dialogs;
-    SharedPreferences sPref;
     String userID;
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     DatabaseReference myRef = database.getReference("Users");
     private FirebaseAuth mAuth;
     private DatabaseReference users = database.getReference("Users");
     private double x1, x2, y1, y2;
+    SharedPreferences sPref;
+    SharedPreferences.Editor ed;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.red)));
+        sPref = getSharedPreferences("Saves", MODE_PRIVATE);
         loadText();
         name = findViewById(R.id.name);
         dialogs = findViewById(R.id.dialogs);
@@ -49,11 +51,11 @@ public class Profile extends AppCompatActivity {
                 name.setText(dataSnapshot.child("name").getValue(String.class));
                 surname.setText(dataSnapshot.child("surname").getValue(String.class));
                 nickname.setText(dataSnapshot.child("nickname").getValue(String.class));
-                sPref = getSharedPreferences("Saves", MODE_PRIVATE);
-                SharedPreferences.Editor ed = sPref.edit();
+                ed = sPref.edit();
                 ed.putString("Nickname", nickname.getText().toString());
                 ed.putString("Name", name.getText().toString());
                 ed.putString("Surname", surname.getText().toString());
+                ed.commit();
             }
 
             @Override
@@ -66,6 +68,7 @@ public class Profile extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         Intent intent = new Intent(getApplicationContext(), DialogsWindow.class);
+                        finish();
                         startActivity(intent);
                     }
                 });
@@ -77,8 +80,7 @@ public class Profile extends AppCompatActivity {
                 users.child(userID).child("nickname").setValue(nickname.getText().toString());
                 users.child(userID).child("name").setValue(name.getText().toString());
                 users.child(userID).child("surname").setValue(surname.getText().toString());
-                sPref = getSharedPreferences("Saves", MODE_PRIVATE);
-                SharedPreferences.Editor ed = sPref.edit();
+                ed = sPref.edit();
                 ed.putString("Nickname", nickname.getText().toString());
                 ed.putString("Name", name.getText().toString());
                 ed.putString("Surname", surname.getText().toString());
@@ -105,8 +107,7 @@ public class Profile extends AppCompatActivity {
     }
 
     void loadText() {
-        sPref = getSharedPreferences("Saves", MODE_PRIVATE);
-        this.userID = String.valueOf(sPref.getInt("USER_ID", 1));
+        userID = String.valueOf(sPref.getInt("USER_ID", 1));
     }
 
     @Override
@@ -142,4 +143,11 @@ public class Profile extends AppCompatActivity {
         return true;
     }
 
+    @Override
+    protected void onDestroy() {
+        ed = sPref.edit();
+        ed.putBoolean("check", true);
+        ed.commit();
+        super.onDestroy();
+    }
 }
