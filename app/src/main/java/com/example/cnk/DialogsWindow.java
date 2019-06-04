@@ -9,11 +9,11 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -35,7 +35,7 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
     Button dialog;
     String currentUsernickname, currentWithUserHashId;
     Boolean pr1, pr2;
-    int pos;
+    private double x1,x2,y1,y2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,8 +55,7 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
         myRef.child(userID).child("dialogs").addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                String x = String.valueOf(dataSnapshot.getValue());
-                Log.d("fff", x);
+                String x = String.valueOf(dataSnapshot.getKey());
                 messages.add(x);
                 dataAdapter.notifyDataSetChanged();
             }
@@ -130,12 +129,7 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
 
     @Override
     public void onNoteClick(int position) {
-        SharedPreferences.Editor ed = sPref.edit();
-        ed.putString("CurrentDialogName", messages.get(pos).toString());
-        ed.putString("CurrentWithUserHashId", currentWithUserHashId);
-        ed.commit();
-        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-        startActivity(intent);
+        currwithusr(position);
     }
 
     public void takeUserNick() {
@@ -157,10 +151,53 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
         super.onDestroy();
         sPref = getSharedPreferences("Saves", MODE_PRIVATE);
         SharedPreferences.Editor ed = sPref.edit();
-        ed.putString("CurrentDialogName", messages.get(pos).toString());
-        ed.putInt("CurrentWithUserHashId", sPref.getInt("USER_ID", 1));
-        ed.putString("USER_ID",userID);
+        ed.putString("CurrentWithUserHashId", currentWithUserHashId);
         ed.commit();
 
     }
+
+    public void currwithusr(final int pos) {
+        myRef.orderByChild("nickname").equalTo(messages.get(pos)).addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                currentWithUserHashId = dataSnapshot.getKey();
+                SharedPreferences.Editor ed = sPref.edit();
+                ed.putString("CurrentDialogName", messages.get(pos).toString());
+                ed.putString("CurrentWithUserHashId", currentWithUserHashId);
+                ed.commit();
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                startActivity(intent);
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        Intent intent = new Intent(this,Profile.class);
+        finish();
+        startActivity(intent);
+        return super.onKeyDown(keyCode, event);
+    }
+
 }

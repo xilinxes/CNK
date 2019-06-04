@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -27,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
     private static int MAX_MESSAGE_LENGTH = 150;
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     DatabaseReference myRef = database.getReference("Users");
-    Button btnInput, btnClear, signout;
+    Button btnInput, signout;
     EditText editMsg;
     ArrayList<String> messages = new ArrayList<>();
     RecyclerView recMsgs;
@@ -49,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setTitle(dialogName);
         startService(new Intent(this, MessageService.class));
         mAuth = FirebaseAuth.getInstance();
-        btnClear = (Button) findViewById(R.id.btnClear);
+        //btnClear = (Button) findViewById(R.id.btnClear);
         btnInput = (Button) findViewById(R.id.btnSndMsg);
         signout = findViewById(R.id.btnSignOut);
         editMsg = (EditText) findViewById(R.id.editMsg);
@@ -59,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
         recMsgs.setAdapter(dataAdapter);
         sPref = getSharedPreferences("Saves", MODE_PRIVATE);
         userID = String.valueOf(sPref.getInt("USER_ID", 1));
+        //Log.d("uf", currentWithUserHashId);
         myRef.orderByChild("nickname").equalTo(dlgnm.toString()).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
@@ -91,16 +93,17 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 mAuth.getInstance().signOut();
                 startActivity(new Intent(MainActivity.this, Authorization.class));
+                finish();
             }
         });
-        btnClear.setOnClickListener(new View.OnClickListener() {
+        /*btnClear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 myRef.removeValue();
                 dataAdapter.notifyDataSetChanged();
                 messages.clear();
             }
-        });
+        });*/
         btnInput.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -59,8 +59,9 @@ public class Authorization extends AppCompatActivity implements Serializable {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 if (firebaseAuth.getCurrentUser() != null) {
-                    Intent intent = new Intent(getApplicationContext(), DialogsWindow.class);
+                    Intent intent = new Intent(getApplicationContext(), Profile.class);
                     saveText();
+                    finish();
                     startActivity(intent);
                 }
             }
