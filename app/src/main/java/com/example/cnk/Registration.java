@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,7 +32,7 @@ public class Registration extends AppCompatActivity {
     private DatabaseReference users = database.getReference("Users");
     SharedPreferences sPref;
     SharedPreferences.Editor ed;
-
+    ProgressBar prBar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +44,7 @@ public class Registration extends AppCompatActivity {
         }
         setContentView(R.layout.activity_registration);
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.red)));
+        prBar = findViewById(R.id.progressBar);
         vxod = findViewById(R.id.edtRegistration);
         email = findViewById(R.id.edtEmail2);
         pass = findViewById(R.id.edtPass2);
@@ -58,6 +60,7 @@ public class Registration extends AppCompatActivity {
         ok.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                prBar.setVisibility(ProgressBar.VISIBLE);
                 createUser();
             }
         });
@@ -94,6 +97,7 @@ public class Registration extends AppCompatActivity {
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w("Tag", "createUserWithEmail:failure", task.getException());
+                            prBar.setVisibility(ProgressBar.INVISIBLE);
                             Toast.makeText(Registration.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                         }
