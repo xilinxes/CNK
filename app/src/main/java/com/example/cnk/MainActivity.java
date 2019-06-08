@@ -95,10 +95,9 @@ public class MainActivity extends AppCompatActivity {
                 ed.putString("Nickname", "");
                 ed.putString("Name", "");
                 ed.putString("Surname", "");
-                ed.clear();
-                mAuth.getInstance().signOut();
                 ed.putBoolean("check", false);
                 ed.commit();
+                FirebaseAuth.getInstance().signOut();
                 finish();
                 startActivity(new Intent(MainActivity.this, Authorization.class));
             }

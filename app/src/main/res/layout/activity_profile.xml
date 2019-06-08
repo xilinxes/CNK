@@ -7,6 +7,7 @@
     tools:context=".Profile">
 
     <LinearLayout
+        android:id="@+id/linearLayout2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -65,12 +66,13 @@
             android:padding="5dp"
             android:text="Сохранить"
             android:textSize="25dp" />
+
         <TextView
             android:id="@+id/info"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="30dp"
-            android:textAlignment="center"/>
+            android:textAlignment="center"
+            android:textSize="30dp" />
 
     </LinearLayout>
 
@@ -85,5 +87,19 @@
         android:padding="10dp"
         android:textSize="25dp"
         android:layout_marginBottom="25dp"/>
+
+    <ProgressBar
+        android:id="@+id/Bar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/linearLayout2" />
 
 </android.support.constraint.ConstraintLayout>

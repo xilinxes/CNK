@@ -12,6 +12,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -31,12 +32,15 @@ public class    Profile extends AppCompatActivity {
     private DatabaseReference users = database.getReference("Users");
     private double x1, x2, y1, y2;
     SharedPreferences sPref;
+    ProgressBar prBar;
     SharedPreferences.Editor ed;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
+        prBar = findViewById(R.id.Bar);
+        prBar.setVisibility(ProgressBar.VISIBLE);
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.red)));
         sPref = getSharedPreferences("Saves", MODE_PRIVATE);
         loadText();
@@ -56,6 +60,7 @@ public class    Profile extends AppCompatActivity {
                 ed.putString("Name", name.getText().toString());
                 ed.putString("Surname", surname.getText().toString());
                 ed.commit();
+                prBar.setVisibility(ProgressBar.INVISIBLE);
             }
 
             @Override

@@ -11,6 +11,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,12 +39,14 @@ public class Authorization extends AppCompatActivity implements Serializable {
     private Button btnOK;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
+    private ProgressBar prBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_authorization);
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.red)));
+        prBar = findViewById(R.id.Bar_auth);
         mAuth = FirebaseAuth.getInstance();
         reg = findViewById(R.id.edtRegistration);
         edtEmail = findViewById(R.id.edtEmail2);
@@ -52,6 +55,7 @@ public class Authorization extends AppCompatActivity implements Serializable {
         btnOK.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                prBar.setVisibility(ProgressBar.VISIBLE);
                 signIn();
             }
         });
@@ -93,6 +97,7 @@ public class Authorization extends AppCompatActivity implements Serializable {
                                                public void onComplete(@NonNull Task<AuthResult> task) {
 
                                                    if (!task.isSuccessful()) {
+                                                       prBar.setVisibility(ProgressBar.INVISIBLE);
                                                        Toast.makeText(Authorization.this, "Not correct pass or email", Toast.LENGTH_LONG).show();
                                                    }
                                                }
