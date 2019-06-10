@@ -34,9 +34,10 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<String> messages = new ArrayList<>();
     RecyclerView recMsgs;
     SharedPreferences sPref;
-    String name, userID,currentWithUserHashId,dlgnm, msg;
+    String name, userID, currentWithUserHashId, dlgnm, msg;
     String dialogName = "Диалог с ";
     SharedPreferences.Editor ed;
+    private int lastReadedMsg = 0;
     private FirebaseAuth mAuth;
 
 
@@ -113,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
         btnInput.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                msg=editMsg.getText().toString();
+                msg = editMsg.getText().toString();
                 if (msg.isEmpty()) {
                     Toast.makeText(getApplicationContext(), "Пустое сообщение", Toast.LENGTH_SHORT).show();
                     return;
@@ -128,10 +129,9 @@ public class MainActivity extends AppCompatActivity {
 
                 myRef.child(currentWithUserHashId).child("dialogs").child(name).push().setValue(msg);
                 myRef.child(userID).child("dialogs").child(dlgnm).push().setValue(msg);
-                Log.d("Test",currentWithUserHashId+" "+name+" "+msg);
-                Log.d("Test",userID+" "+dlgnm+" "+msg);
+                Log.d("Test", currentWithUserHashId + " " + name + " " + msg);
+                Log.d("Test", userID + " " + dlgnm + " " + msg);
                 editMsg.setText("");
-                //fixme count
                 //Toast.makeText(getApplicationContext(),currentWithUserHashId.toString(),Toast.LENGTH_SHORT).show();
             }
         });
@@ -141,6 +141,9 @@ public class MainActivity extends AppCompatActivity {
                 String messg = dataSnapshot.getValue(String.class);
                 messages.add(messg);
                 dataAdapter.notifyDataSetChanged();
+                myRef.child(currentWithUserHashId).child("dialogs_info").child(name).child("allCountMessages").setValue(dataAdapter.getItemCount());
+                myRef.child(userID).child("dialogs_info").child(dlgnm).child("allCountMessages").setValue(dataAdapter.getItemCount());
+                lastReadedMsg = dataAdapter.getItemCount();
                 recMsgs.smoothScrollToPosition(messages.size());
             }
 
@@ -166,12 +169,14 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
-    public void load(){
+
+    public void load() {
         name = sPref.getString("Nickname", "r");
         dlgnm = sPref.getString("CurrentDialogName", "");
         dialogName += sPref.getString("CurrentDialogName", "");
-        currentWithUserHashId = sPref.getString("CurrentWithUserHashId","rrr");
+        currentWithUserHashId = sPref.getString("CurrentWithUserHashId", "rrr");
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
@@ -182,4 +187,9 @@ public class MainActivity extends AppCompatActivity {
         return super.onKeyDown(keyCode, event);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        myRef.child(userID).child("dialogs_info").child(dlgnm).child("lastReadedMessage").setValue(lastReadedMsg);
+    }
 }

@@ -33,11 +33,11 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
     SharedPreferences sPref;
     String userID;
     ArrayList<String> messages = new ArrayList<>();
+    ArrayList<String> countUnreadedMsgs = new ArrayList<>();
     Button dialog;
     String currentUsernickname, currentWithUserHashId;
     SharedPreferences.Editor ed;
     Boolean pr1, pr2;
-    private double x1,x2,y1,y2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,6 +94,10 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
                         Log.d("Test",currentUsernickname);
                         myRef.child(userID).child("dialogs").child(name.getText().toString()).setValue(name.getText().toString());
                         myRef.child(currentWithUserHashId).child("dialogs").child(currentUsernickname).setValue(currentUsernickname);
+                        /*myRef.child(currentWithUserHashId).child("dialogs_info").child(currentUsernickname).child("allCountMessages").setValue(0);
+                        myRef.child(userID).child("dialogs_info").child(name.getText().toString()).child("allCountMessages").setValue(0);
+                        myRef.child(currentWithUserHashId).child("dialogs_info").child(currentUsernickname).child("lastReadedMessage").setValue(0);
+                        myRef.child(userID).child("dialogs_info").child(name.getText().toString()).child("lastReadedMessage").setValue(0);*/
                         name.setText("");
                     }
 
