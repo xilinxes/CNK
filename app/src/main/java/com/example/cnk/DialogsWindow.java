@@ -52,23 +52,42 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
         recMsgs.setLayoutManager(new LinearLayoutManager(this));
         final DataAdapter dataAdapter = new DataAdapter(this, messages, countUnreadedMsgs, this);
         recMsgs.setAdapter(dataAdapter);
-        countUnreadedMsgs.add("0");
-        countUnreadedMsgs.add("0");
-        countUnreadedMsgs.add("0");
-        countUnreadedMsgs.add("0");
-        countUnreadedMsgs.add("0");
-        countUnreadedMsgs.add("0");
-        countUnreadedMsgs.add("0");
-        countUnreadedMsgs.add("0");
-        countUnreadedMsgs.add("0");
-        countUnreadedMsgs.add("0");
 
         myRef.child(userID).child("dialogs").addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 String x = String.valueOf(dataSnapshot.getKey());
                 messages.add(x);
-                dataAdapter.notifyDataSetChanged();
+                myRef.child(userID).child("dialogs_info").child("allCountMessages").addChildEventListener(new ChildEventListener() {
+                    @Override
+                    public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                        String y = String.valueOf(dataSnapshot.getValue());
+                        countUnreadedMsgs.add(y);
+                        dataAdapter.notifyDataSetChanged();
+                        Log.d("asdf", y);
+
+                    }
+
+                    @Override
+                    public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+                    }
+
+                    @Override
+                    public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+                    }
+
+                    @Override
+                    public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
             }
 
             @Override
@@ -91,6 +110,7 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
 
             }
         });
+
         dialog.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -102,10 +122,10 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
                         Log.d("Test", currentUsernickname);
                         myRef.child(userID).child("dialogs").child(name.getText().toString()).setValue(name.getText().toString());
                         myRef.child(currentWithUserHashId).child("dialogs").child(currentUsernickname).setValue(currentUsernickname);
-                        /*myRef.child(currentWithUserHashId).child("dialogs_info").child(currentUsernickname).child("allCountMessages").setValue(0);
-                        myRef.child(userID).child("dialogs_info").child(name.getText().toString()).child("allCountMessages").setValue(0);
-                        myRef.child(currentWithUserHashId).child("dialogs_info").child(currentUsernickname).child("lastReadedMessage").setValue(0);
-                        myRef.child(userID).child("dialogs_info").child(name.getText().toString()).child("lastReadedMessage").setValue(0);*/
+                        myRef.child(currentWithUserHashId).child("dialogs_info").child("allCountMessages").child(currentUsernickname).setValue(0);
+                        myRef.child(userID).child("dialogs_info").child("allCountMessages").child(name.getText().toString()).setValue(0);
+                        myRef.child(currentWithUserHashId).child("dialogs_info").child("lastReadedMessage").child(currentUsernickname).setValue(0);
+                        myRef.child(userID).child("dialogs_info").child("lastReadedMessage").child(name.getText().toString()).setValue(0);
                         name.setText("");
                     }
 

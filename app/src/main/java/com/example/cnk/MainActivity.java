@@ -141,8 +141,8 @@ public class MainActivity extends AppCompatActivity {
                 String messg = dataSnapshot.getValue(String.class);
                 messages.add(messg);
                 dataAdapter.notifyDataSetChanged();
-                myRef.child(currentWithUserHashId).child("dialogs_info").child(name).child("allCountMessages").setValue(dataAdapter.getItemCount());
-                myRef.child(userID).child("dialogs_info").child(dlgnm).child("allCountMessages").setValue(dataAdapter.getItemCount());
+                myRef.child(currentWithUserHashId).child("dialogs_info").child("allCountMessages").child(name).setValue(dataAdapter.getItemCount());
+                myRef.child(userID).child("dialogs_info").child("allCountMessages").child(dlgnm).setValue(dataAdapter.getItemCount());
                 lastReadedMsg = dataAdapter.getItemCount();
                 recMsgs.smoothScrollToPosition(messages.size());
             }
@@ -190,6 +190,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        myRef.child(userID).child("dialogs_info").child(dlgnm).child("lastReadedMessage").setValue(lastReadedMsg);
+        myRef.child(userID).child("dialogs_info").child("lastReadedMessage").child(dlgnm).setValue(lastReadedMsg);
     }
 }
