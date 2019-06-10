@@ -131,6 +131,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("Test",currentWithUserHashId+" "+name+" "+msg);
                 Log.d("Test",userID+" "+dlgnm+" "+msg);
                 editMsg.setText("");
+                //fixme count
                 //Toast.makeText(getApplicationContext(),currentWithUserHashId.toString(),Toast.LENGTH_SHORT).show();
             }
         });
