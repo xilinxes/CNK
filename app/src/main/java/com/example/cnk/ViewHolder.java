@@ -12,13 +12,14 @@ import java.util.Set;
 import static android.content.Context.MODE_PRIVATE;
 
 public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-    TextView msgg;
+    TextView msgg,countMsgs;
     DataAdapter.OnNoteListener onNoteListener;
 
 
     public ViewHolder(View itemView, DataAdapter.OnNoteListener onNoteListener) {
         super(itemView);
         msgg = itemView.findViewById(R.id.messageItem);
+        countMsgs = itemView.findViewById(R.id.tvCountUnrMessages);
         this.onNoteListener = onNoteListener;
         itemView.setOnClickListener(this);
     }

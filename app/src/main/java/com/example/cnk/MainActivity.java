@@ -39,13 +39,13 @@ public class MainActivity extends AppCompatActivity {
     SharedPreferences.Editor ed;
     private FirebaseAuth mAuth;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         sPref = getSharedPreferences("Saves", MODE_PRIVATE);
         load();
-        Log.d("aaa",name);
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.red)));
         getSupportActionBar().setTitle(dialogName);
         startService(new Intent(this, MessageService.class));

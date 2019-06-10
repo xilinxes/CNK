@@ -29,7 +29,7 @@ public class DataAdapter extends RecyclerView.Adapter<ViewHolder>  {
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        View view = inflater.inflate(R.layout.item_msg, viewGroup, false);
+        View view = inflater.inflate(R.layout.item_for_diaologs, viewGroup, false);
         return new ViewHolder(view, onNoteListener);
     }
 
