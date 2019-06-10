@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private static int MAX_MESSAGE_LENGTH = 150;
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     DatabaseReference myRef = database.getReference("Users");
-    Button btnInput, signout;
+    Button btnInput;
     EditText editMsg;
     ArrayList<String> messages = new ArrayList<>();
     RecyclerView recMsgs;
@@ -53,7 +53,6 @@ public class MainActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         //btnClear = (Button) findViewById(R.id.btnClear);
         btnInput = (Button) findViewById(R.id.btnSndMsg);
-        signout = findViewById(R.id.btnSignOut);
         editMsg = (EditText) findViewById(R.id.editMsg);
         recMsgs = (RecyclerView) findViewById(R.id.recyclerMsg);
         recMsgs.setLayoutManager(new LinearLayoutManager(this));
@@ -89,20 +88,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        signout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ed = sPref.edit();
-                ed.putString("Nickname", "");
-                ed.putString("Name", "");
-                ed.putString("Surname", "");
-                ed.putBoolean("check", false);
-                ed.commit();
-                FirebaseAuth.getInstance().signOut();
-                finish();
-                startActivity(new Intent(MainActivity.this, Authorization.class));
-            }
-        });
+
         /*btnClear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -136,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         myRef.child(userID).child("dialogs").child(dlgnm).addChildEventListener(new ChildEventListener() {
-            @Override
+                @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 String messg = dataSnapshot.getValue(String.class);
                 messages.add(messg);
@@ -180,6 +166,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
+            myRef.child(userID).child("dialogs_info").child("lastReadedMessage").child(dlgnm).setValue(lastReadedMsg);
             Intent intent = new Intent(this, DialogsWindow.class);
             finish();
             startActivity(intent);
@@ -190,6 +177,5 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        myRef.child(userID).child("dialogs_info").child("lastReadedMessage").child(dlgnm).setValue(lastReadedMsg);
     }
 }

@@ -22,9 +22,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-public class    Profile extends AppCompatActivity {
+public class Profile extends AppCompatActivity {
     EditText name, surname, nickname;
-    Button save, dialogs;
+    Button save, dialogs, signout;
     String userID;
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     DatabaseReference myRef = database.getReference("Users");
@@ -34,6 +34,7 @@ public class    Profile extends AppCompatActivity {
     SharedPreferences sPref;
     ProgressBar prBar;
     SharedPreferences.Editor ed;
+    Boolean readyToFinish = false;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -43,6 +44,7 @@ public class    Profile extends AppCompatActivity {
         prBar.setVisibility(ProgressBar.VISIBLE);
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.red)));
         sPref = getSharedPreferences("Saves", MODE_PRIVATE);
+        signout = findViewById(R.id.btnSignOut);
         loadText();
         name = findViewById(R.id.name);
         dialogs = findViewById(R.id.dialogs);
@@ -61,6 +63,7 @@ public class    Profile extends AppCompatActivity {
                 ed.putString("Surname", surname.getText().toString());
                 ed.commit();
                 prBar.setVisibility(ProgressBar.INVISIBLE);
+                readyToFinish = true;
             }
 
             @Override
@@ -69,14 +72,31 @@ public class    Profile extends AppCompatActivity {
             }
         });
 
-                dialogs.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(getApplicationContext(), DialogsWindow.class);
-                        finish();
-                        startActivity(intent);
-                    }
-                });
+        signout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ed = sPref.edit();
+                ed.putString("Nickname", "");
+                ed.putString("Name", "");
+                ed.putString("Surname", "");
+                ed.putBoolean("check", false);
+                ed.commit();
+                FirebaseAuth.getInstance().signOut();
+                finish();
+                startActivity(new Intent(getApplicationContext(), Authorization.class));
+            }
+        });
+
+        dialogs.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(readyToFinish) {
+                    Intent intent = new Intent(getApplicationContext(), DialogsWindow.class);
+                    finish();
+                    startActivity(intent);
+                }
+            }
+        });
 
         save.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -118,11 +138,12 @@ public class    Profile extends AppCompatActivity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            Intent intent = new Intent(this, Profile.class);
+            /*Intent intent = new Intent(this, Profile.class);
             finish();
-            startActivity(intent);
+            startActivity(intent);*/
         }
-        return super.onKeyDown(keyCode, event);
+        // return super.onKeyDown(keyCode, event);
+        return false;
     }
 
     @Override
@@ -131,9 +152,8 @@ public class    Profile extends AppCompatActivity {
             case MotionEvent.ACTION_MOVE: {
                 x2 = event.getX();
                 y2 = event.getY();
-                Log.d("xyz", String.valueOf(x2 - x1));
-                if ((x2 - x1) < -300 && Math.abs(y2 - y1) < 200) {
-                    Intent intent = new Intent(this, DialogsWindow.class);
+                if ((x2 - x1) < -300 && Math.abs(y2 - y1) < 200 && readyToFinish) {
+                    Intent intent = new Intent(getApplicationContext(), DialogsWindow.class);
                     finish();
                     startActivity(intent);
                 }
@@ -145,7 +165,7 @@ public class    Profile extends AppCompatActivity {
                 break;
 
         }
-        return true;
+        return false;
     }
 
     @Override
