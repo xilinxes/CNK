@@ -11,7 +11,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -51,9 +50,18 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
         dialog = findViewById(R.id.addDialog);
         recMsgs = (RecyclerView) findViewById(R.id.dialogs);
         recMsgs.setLayoutManager(new LinearLayoutManager(this));
-        final DataAdapter dataAdapter = new DataAdapter(this, messages, this);
+        final DataAdapter dataAdapter = new DataAdapter(this, messages, countUnreadedMsgs, this);
         recMsgs.setAdapter(dataAdapter);
-
+        countUnreadedMsgs.add("0");
+        countUnreadedMsgs.add("0");
+        countUnreadedMsgs.add("0");
+        countUnreadedMsgs.add("0");
+        countUnreadedMsgs.add("0");
+        countUnreadedMsgs.add("0");
+        countUnreadedMsgs.add("0");
+        countUnreadedMsgs.add("0");
+        countUnreadedMsgs.add("0");
+        countUnreadedMsgs.add("0");
 
         myRef.child(userID).child("dialogs").addChildEventListener(new ChildEventListener() {
             @Override
@@ -91,7 +99,7 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
                     @Override
                     public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                         currentWithUserHashId = dataSnapshot.getKey();
-                        Log.d("Test",currentUsernickname);
+                        Log.d("Test", currentUsernickname);
                         myRef.child(userID).child("dialogs").child(name.getText().toString()).setValue(name.getText().toString());
                         myRef.child(currentWithUserHashId).child("dialogs").child(currentUsernickname).setValue(currentUsernickname);
                         /*myRef.child(currentWithUserHashId).child("dialogs_info").child(currentUsernickname).child("allCountMessages").setValue(0);
@@ -145,7 +153,7 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 currentUsernickname = (dataSnapshot.child(userID).child("nickname").getValue(String.class));
-                Log.d("Test",currentUsernickname);
+                Log.d("Test", currentUsernickname);
             }
 
             @Override
@@ -168,7 +176,7 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
                 ed = sPref.edit();
                 ed.putString("CurrentDialogName", messages.get(pos).toString());
                 ed.putString("CurrentWithUserHashId", currentWithUserHashId);
-             //   ed.putString("Nickname",currentUsernickname);
+                //   ed.putString("Nickname",currentUsernickname);
                 ed.commit();
                 finish();
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
@@ -200,7 +208,7 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        Intent intent = new Intent(this,Profile.class);
+        Intent intent = new Intent(this, Profile.class);
         ed = sPref.edit();
         ed.putString("CurrentWithUserHashId", currentWithUserHashId);
         ed.commit();

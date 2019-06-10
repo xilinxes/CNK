@@ -15,12 +15,14 @@ import java.util.List;
 
 public class DataAdapter extends RecyclerView.Adapter<ViewHolder>  {
     ArrayList<String> messages;
+    ArrayList<String> countUnreadedMsgs;
     LayoutInflater inflater;
     private OnNoteListener onNoteListener;
 
 
-    public DataAdapter(Context context, ArrayList<String> messages, OnNoteListener onNoteListener) {
+    public DataAdapter(Context context, ArrayList<String> messages, ArrayList<String> countUnreadedMsgs, OnNoteListener onNoteListener) {
         this.messages = messages;
+        this.countUnreadedMsgs = countUnreadedMsgs;
         this.inflater = LayoutInflater.from(context);
         this.onNoteListener = onNoteListener;
     }
@@ -37,6 +39,8 @@ public class DataAdapter extends RecyclerView.Adapter<ViewHolder>  {
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
         String msg = messages.get(i);
+        String countMsgs = countUnreadedMsgs.get(i);
+        viewHolder.countMsgs.setText(countMsgs);
         viewHolder.msgg.setText(msg);
     }
 
