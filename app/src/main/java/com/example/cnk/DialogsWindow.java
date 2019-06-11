@@ -14,7 +14,6 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -38,12 +37,14 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
     String currentUsernickname, currentWithUserHashId, allCountMessages, lastReadedMessage;
     SharedPreferences.Editor ed;
     int i = 0;
-    Boolean pr1, pr2;
+    Boolean pr1 = true, pr2;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dialogs_window);
         try {
+            startService(new Intent(getApplicationContext(), MessageNotifficationService.class));
             getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.red)));
             sPref = getSharedPreferences("Saves", MODE_PRIVATE);
             loadText();
@@ -66,12 +67,14 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
                         public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                             currentWithUserHashId = dataSnapshot.getKey();
                             Log.d("Test", currentUsernickname);
-                            myRef.child(userID).child("dialogs").child(name.getText().toString()).setValue(name.getText().toString());
+                            String nick = name.getText().toString();
+                            myRef.child(userID).child("dialogs").child(name.getText().toString()).setValue(nick);
                             myRef.child(currentWithUserHashId).child("dialogs").child(currentUsernickname).setValue(currentUsernickname);
-                            myRef.child(currentWithUserHashId).child("dialogs_info").child("allCountMessages").child(currentUsernickname).setValue(0);
-                            myRef.child(userID).child("dialogs_info").child("allCountMessages").child(name.getText().toString()).setValue(0);
-                            myRef.child(currentWithUserHashId).child("dialogs_info").child("lastReadedMessage").child(currentUsernickname).setValue(0);
-                            myRef.child(userID).child("dialogs_info").child("lastReadedMessage").child(name.getText().toString()).setValue(0);
+                            myRef.child(userID).child("dialogs_info").child("lastReadedMessage").child(nick).setValue("0");
+                            myRef.child(userID).child("dialogs_info").child("allCountMessages").child(nick).setValue("0");
+                            myRef.child(currentWithUserHashId).child("dialogs_info").child("allCountMessages").child(currentUsernickname).setValue("0");
+                            myRef.child(currentWithUserHashId).child("dialogs_info").child("lastReadedMessage").child(currentUsernickname).setValue("0");
+                            pr1 = true;
                             name.setText("");
                         }
 
@@ -101,9 +104,8 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
 
 
             });
-        }
-        catch (Exception e){
-            Log.d("12345",e.toString());
+        } catch (Exception e) {
+            Log.d("12345", e.toString());
         }
     }
 
@@ -148,6 +150,7 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
                 ed.putString("CurrentWithUserHashId", currentWithUserHashId);
                 //   ed.putString("Nickname",currentUsernickname);
                 ed.commit();
+                stopService(new Intent(getApplicationContext(), MessageNotifficationService.class));
                 finish();
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                 startActivity(intent);
@@ -197,18 +200,28 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
                     myRef.addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            allCountMessages = String.valueOf((dataSnapshot.child(userID).child("dialogs_info").child("allCountMessages").child(messages.get(i)).getValue()));
-                            lastReadedMessage = String.valueOf((dataSnapshot.child(userID).child("dialogs_info").child("lastReadedMessage").child(messages.get(i)).getValue()));
-                            int res = Integer.parseInt(allCountMessages) - Integer.parseInt(lastReadedMessage);
-                            if (res == 0) {
-                                countUnreadedMsgs.add("");
-                            } else {
-                                countUnreadedMsgs.add(String.valueOf(res));
+                            if (pr1) {
+                                allCountMessages = String.valueOf(dataSnapshot.child(userID).child("dialogs_info").child("allCountMessages").child(messages.get(i)).getValue());
+                                lastReadedMessage = String.valueOf(dataSnapshot.child(userID).child("dialogs_info").child("lastReadedMessage").child(messages.get(i)).getValue());
+                                int res;
+                                try {
+                                    res = Integer.parseInt(allCountMessages) - Integer.parseInt(lastReadedMessage);
+                                }
+                                catch (NumberFormatException e){
+                                    res=0;
+                                }
+                                if (res == 0) {
+                                    countUnreadedMsgs.add("");
+                                } else {
+                                    countUnreadedMsgs.add(String.valueOf(res));
+                                }
+                                Log.d("asdf", String.valueOf(allCountMessages));
                             }
-                            Log.d("asdf", allCountMessages);
-                            dataAdapter.notifyDataSetChanged();
                             if (i < messages.size() - 1) {
                                 i++;
+                            } else {
+                                pr1 = false;
+                                dataAdapter.notifyDataSetChanged();
                             }
                         }
 
@@ -240,9 +253,8 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
 
                 }
             });
-        }
-        catch (Exception e){
-
+        } catch (Exception e) {
+            Log.d("12345", e.toString());
         }
     }
 

@@ -73,7 +73,8 @@ public class Authorization extends AppCompatActivity implements Serializable {
         reg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(Authorization.this, Registration.class));
+                finish();
+                startActivity(new Intent(getApplicationContext(), Registration.class));
             }
         });
     }

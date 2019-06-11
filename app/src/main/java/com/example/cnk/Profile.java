@@ -51,6 +51,10 @@ public class Profile extends AppCompatActivity {
         surname = findViewById(R.id.surname);
         nickname = findViewById(R.id.nickname);
         save = findViewById(R.id.save);
+        startService(new Intent(this, MessageNotifficationService.class));
+        ed = sPref.edit();
+        ed.putBoolean("check", true);
+        ed.commit();
         myRef.child(userID).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -170,9 +174,6 @@ public class Profile extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        ed = sPref.edit();
-        ed.putBoolean("check", true);
-        ed.commit();
         super.onDestroy();
     }
 }
