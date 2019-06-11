@@ -55,6 +55,9 @@ public class Profile extends AppCompatActivity {
         ed = sPref.edit();
         ed.putBoolean("check", true);
         ed.commit();
+
+
+
         myRef.child(userID).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -105,7 +108,7 @@ public class Profile extends AppCompatActivity {
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                users.child("nicknames").child(userID).setValue(nickname.getText().toString());
                 users.child(userID).child("nickname").setValue(nickname.getText().toString());
                 users.child(userID).child("name").setValue(name.getText().toString());
                 users.child(userID).child("surname").setValue(surname.getText().toString());

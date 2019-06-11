@@ -12,8 +12,11 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.MultiAutoCompleteTextView;
+import android.widget.Toast;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -27,12 +30,13 @@ import java.util.ArrayList;
 public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNoteListener {
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     RecyclerView recMsgs;
-    EditText name;
+    MultiAutoCompleteTextView name;
     DatabaseReference myRef = database.getReference("Users");
     SharedPreferences sPref;
     String userID;
     ArrayList<String> messages = new ArrayList<>();
     ArrayList<String> countUnreadedMsgs = new ArrayList<>();
+    ArrayList<String> baseOfNicks = new ArrayList<>();
     Button dialog;
     String currentUsernickname, currentWithUserHashId, allCountMessages, lastReadedMessage;
     SharedPreferences.Editor ed;
@@ -57,6 +61,35 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
             recMsgs.setAdapter(dataAdapter);
             startCheck(dataAdapter);
 
+            myRef.child("nicknames").addChildEventListener(new ChildEventListener() {
+                @Override
+                public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                    String nick = dataSnapshot.getValue(String.class);
+                    baseOfNicks.add(nick);
+                    ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplicationContext(), R.layout.support_simple_spinner_dropdown_item, baseOfNicks);
+                    name.setAdapter(adapter);
+                }
+
+                @Override
+                public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+                }
+
+                @Override
+                public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+                }
+
+                @Override
+                public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
 
             dialog.setOnClickListener(new View.OnClickListener() {
                 @Override
