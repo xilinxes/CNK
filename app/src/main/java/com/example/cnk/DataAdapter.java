@@ -38,10 +38,15 @@ public class DataAdapter extends RecyclerView.Adapter<ViewHolder>  {
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
-        String msg = messages.get(i);
-        String countMsgs = countUnreadedMsgs.get(i);
-        viewHolder.countMsgs.setText(countMsgs);
-        viewHolder.msgg.setText(msg);
+        try {
+            String msg = messages.get(i);
+            String countMsgs = countUnreadedMsgs.get(i);
+            viewHolder.countMsgs.setText(countMsgs);
+            viewHolder.msgg.setText(msg);
+        }
+        catch (IndexOutOfBoundsException e){
+
+        }
     }
 
     @Override
