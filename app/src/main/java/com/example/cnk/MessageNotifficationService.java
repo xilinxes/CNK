@@ -30,7 +30,7 @@ public class MessageNotifficationService extends Service {
     String NOTIFICATION_CNANNEL_ID = "Messages";
     SharedPreferences sPref;
     Boolean pr = true;
-    long[] vibrPattern = new long[]{0, 50, 50, 100};
+    long[] vibrPattern = new long[]{0, 300, 500, 500};
 
     public MessageNotifficationService() {
     }
@@ -93,6 +93,7 @@ public class MessageNotifficationService extends Service {
             notificationChannel.setDescription("EDMT Channel");
             notificationChannel.enableLights(true);
             notificationChannel.setLightColor(Color.BLUE);
+            notificationChannel.enableVibration(true);
             notificationChannel.setVibrationPattern(vibrPattern);
             notificationChannel.enableLights(true);
             notificationManager.createNotificationChannel(notificationChannel);
