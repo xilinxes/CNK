@@ -30,7 +30,7 @@ public class MessageNotifficationService extends Service {
     String NOTIFICATION_CNANNEL_ID = "Messages";
     SharedPreferences sPref;
     Boolean pr = true;
-    long[] vibrPattern = new long[]{0, 50};
+    long[] vibrPattern = new long[]{0, 50, 50, 100};
 
     public MessageNotifficationService() {
     }
@@ -57,7 +57,7 @@ public class MessageNotifficationService extends Service {
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 if (pr) {
                     String userWithName = dataSnapshot.getKey();
-                    showNotification(userWithName, nickname, "Вам новое сообщение от "+ userWithName);
+                    showNotification(userWithName, nickname, "Вам новое сообщение от " + userWithName);
                 }
             }
 
@@ -107,6 +107,6 @@ public class MessageNotifficationService extends Service {
                 .setContentText(body)
                 .setContentIntent(resultPendingIntent)
                 .setContentInfo("INFO");
-                notificationManager.notify(userWithName.hashCode(), notificationBuilder.build());
+        notificationManager.notify(userWithName.hashCode(), notificationBuilder.build());
     }
 }

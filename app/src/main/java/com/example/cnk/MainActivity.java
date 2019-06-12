@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     SharedPreferences.Editor ed;
     private int lastReadedMsg = 0;
     private FirebaseAuth mAuth;
+    private Boolean ifInput = false;
 
 
     @Override
@@ -113,11 +114,12 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Слишком много символов", Toast.LENGTH_SHORT).show();
                     return;
                 }
-
+                ifInput = true;
                 myRef.child(currentWithUserHashId).child("dialogs").child(name).push().setValue(msg);
                 myRef.child(userID).child("dialogs").child(dlgnm).push().setValue(msg);
                 Log.d("Test", currentWithUserHashId + " " + name + " " + msg);
                 Log.d("Test", userID + " " + dlgnm + " " + msg);
+
                 editMsg.setText("");
                 //Toast.makeText(getApplicationContext(),currentWithUserHashId.toString(),Toast.LENGTH_SHORT).show();
             }
@@ -128,9 +130,11 @@ public class MainActivity extends AppCompatActivity {
                 String messg = dataSnapshot.getValue(String.class);
                 messages.add(messg);
                 dataAdapter.notifyDataSetChanged();
-                myRef.child(currentWithUserHashId).child("dialogs_info").child("allCountMessages").child(name).setValue(dataAdapter.getItemCount());
-                myRef.child(userID).child("dialogs_info").child("allCountMessages").child(dlgnm).setValue(dataAdapter.getItemCount());
                 lastReadedMsg = dataAdapter.getItemCount();
+                if(ifInput){
+                    myRef.child(currentWithUserHashId).child("dialogs_info").child("allCountMessages").child(name).setValue(messages.size());
+                }
+                myRef.child(userID).child("dialogs_info").child("allCountMessages").child(dlgnm).setValue(messages.size());
                 recMsgs.smoothScrollToPosition(messages.size());
             }
 
@@ -173,6 +177,18 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         }
         return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    protected void onPostResume() {
+        stopService(new Intent(getApplicationContext(), MessageNotifficationService.class));
+        super.onPostResume();
+    }
+
+    @Override
+    protected void onStop() {
+        startService(new Intent(getApplicationContext(), MessageNotifficationService.class));
+        super.onStop();
     }
 
     @Override
