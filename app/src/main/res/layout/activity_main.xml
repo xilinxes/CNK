@@ -4,8 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".MainActivity"
-    >
+    tools:context=".MainActivity">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerMsg"
@@ -15,6 +14,10 @@
 
     </android.support.v7.widget.RecyclerView>
 
+    <ImageView
+        android:id="@+id/imgvPhoto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -25,16 +28,24 @@
             android:id="@+id/editMsg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:hint="@string/editMsg"
-            android:textSize="24dp"
-            android:layout_weight="1"/>
-<!--
-        <Button
-            android:id="@+id/btnClear"
+            android:textSize="24dp" />
+
+        <ImageButton
+            android:id="@+id/btnAddPhoto"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="clear"
-            android:textSize="20dp" />-->
+            android:background="@color/backgroundForAddPhotoBtn"
+            android:src="@drawable/ic_add_photo" />
+
+        <!--
+                <Button
+                    android:id="@+id/btnClear"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="clear"
+                    android:textSize="20dp" />-->
 
 
     </LinearLayout>

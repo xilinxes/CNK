@@ -46,6 +46,7 @@ public class Authorization extends AppCompatActivity implements Serializable {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_authorization);
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.red)));
+        startService(new Intent(this, MessageNotifficationService.class));
         prBar = findViewById(R.id.Bar_auth);
         mAuth = FirebaseAuth.getInstance();
         reg = findViewById(R.id.edtRegistration);

@@ -44,6 +44,7 @@ public class Registration extends AppCompatActivity {
         }
         setContentView(R.layout.activity_registration);
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.red)));
+        startService(new Intent(this, MessageNotifficationService.class));
         prBar = findViewById(R.id.progressBar);
         vxod = findViewById(R.id.edtRegistration);
         email = findViewById(R.id.edtEmail2);
