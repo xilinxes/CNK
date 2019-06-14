@@ -16,6 +16,11 @@
         android:layout_margin="5dp"
         android:padding="4dp">
 
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"/>
+
         <ImageView
             android:id="@+id/itemImage"
             android:layout_width="162dp"
