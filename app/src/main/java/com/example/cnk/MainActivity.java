@@ -11,6 +11,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -22,6 +23,7 @@ import android.text.SpannableString;
 import android.text.style.ImageSpan;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -38,6 +40,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
@@ -49,7 +52,11 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
     static final int GALLERY_REQUEST = 1;
@@ -61,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
     DatabaseReference myRef = database.getReference("Users");
     Button btnInput;
     EditText editMsg;
-    ArrayList<String> messages = new ArrayList<>();
+    LinkedList<String> messages = new LinkedList<>();
     RecyclerView recMsgs;
     SharedPreferences sPref;
     String name, userID, currentWithUserHashId, dlgnm, msg;
@@ -74,6 +81,8 @@ public class MainActivity extends AppCompatActivity {
     private Boolean ifInput = false;
     private UUID uuidPhoto;
     File localFile = null;
+    Handler h = new Handler();
+    StorageReference ref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,9 +106,17 @@ public class MainActivity extends AppCompatActivity {
         recMsgs.setAdapter(dataAdapter);
         sPref = getSharedPreferences("Saves", MODE_PRIVATE);
         userID = String.valueOf(sPref.getInt("USER_ID", 1));
+        Runnable run = new Runnable() {
 
+            @Override
+            public void run() {
+                dataAdapter.notifyDataSetChanged();
+                h.postDelayed(this, 3000);
+            }
+        };
+        run.run();
 
-        myRef.orderByChild("nickname").equalTo(dlgnm.toString()).addChildEventListener(new ChildEventListener() {
+        myRef.orderByChild("nickname").equalTo(dlgnm).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 currentWithUserHashId = dataSnapshot.getKey();
@@ -151,39 +168,46 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
                 ifInput = true;
-                myRef.child(currentWithUserHashId).child("dialogs").child(name).child(dataAdapter.getItemCount()+" "+name+" message").setValue(msg);
-                myRef.child(userID).child("dialogs").child(dlgnm).child(dataAdapter.getItemCount()+" "+name+" message").setValue(msg);
+                myRef.child(currentWithUserHashId).child("dialogs").child(name).push().setValue(msg);
+                myRef.child(userID).child("dialogs").child(dlgnm).push().setValue(msg);
                 Log.d("Test", currentWithUserHashId + " " + name + " " + msg);
                 Log.d("Test", userID + " " + dlgnm + " " + msg);
                 editMsg.setText("");
                 //Toast.makeText(getApplicationContext(),currentWithUserHashId.toString(),Toast.LENGTH_SHORT).show();
             }
         });
+
+
         myRef.child(userID).child("dialogs").child(dlgnm).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                String key = dataSnapshot.getKey();
-                final String check = key.substring(0,1);
+              /*  String key = dataSnapshot.getKey();
+                final String check = key.substring(0, 1);
                 final String messg = dataSnapshot.getValue(String.class);
-                String sub = key.substring(key.length()-5);
-                if(sub.equals("image")){
+                String sub = key.substring(key.length() - 5);
+                if (sub.equals("image")) {
+                    ImageView img = findViewById(R.id.Images1);
                     Log.d("Test3.0", "equals");
-                    StorageReference ref = null;
-                    ref = storage.getReferenceFromUrl("gs://cnkfirebaseproject.appspot.com/"+messg);
+                    i++;
+                    ref = storage.getReferenceFromUrl("gs://cnkfirebaseproject.appspot.com/" + messg);
                     try {
-                        localFile = File.createTempFile(check+check+check, "jpg");
+                        localFile = File.createTempFile("aaa" + String.valueOf(new Random().nextInt(33)), "jpg");
+                        GlideApp.with(MainActivity.this)
+                                .load(ref)
+                                .into(img);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-
                     ref.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                            Log.d("Test3.0", "file downloaded");
                             messages.add(localFile.getPath());
+                            //   dataAdapter.notifyDataSetChanged();
+                            Log.d("Test3.0", String.valueOf(i));
                         }
                     });
-                }
-                if(sub.equals("ssage")) {
+                } else if (sub.equals("ssage")) {
                     messages.add(messg);
                     lastReadedMsg = dataAdapter.getItemCount();
                     if (ifInput) {
@@ -191,8 +215,20 @@ public class MainActivity extends AppCompatActivity {
                     }
                     myRef.child(userID).child("dialogs_info").child("allCountMessages").child(dlgnm).setValue(messages.size());
                     recMsgs.smoothScrollToPosition(messages.size());
+                    // dataAdapter.notifyDataSetChanged();
+                }*/
+
+
+                final String messg = dataSnapshot.getValue(String.class);
+                messages.add(messg);
+                lastReadedMsg = dataAdapter.getItemCount();
+                if (ifInput) {
+                    myRef.child(currentWithUserHashId).child("dialogs_info").child("allCountMessages").child(name).setValue(messages.size());
                 }
+                myRef.child(userID).child("dialogs_info").child("allCountMessages").child(dlgnm).setValue(messages.size());
+                recMsgs.smoothScrollToPosition(messages.size());
                 dataAdapter.notifyDataSetChanged();
+
             }
 
             @Override
@@ -243,7 +279,7 @@ public class MainActivity extends AppCompatActivity {
             case GALLERY_REQUEST:
                 if (resultCode == RESULT_OK) {
                     selectedImage = data.getData();
-                   // ImageView imageView = (ImageView) findViewById(R.id.imgvPhoto);
+                    // ImageView imageView = (ImageView) findViewById(R.id.imgvPhoto);
                     try {
                         bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImage);
                     } catch (IOException e) {
@@ -266,17 +302,20 @@ public class MainActivity extends AppCompatActivity {
                 }
         }
 
+
+
     }
+
 
     private void uploadImage() {
 
         if (selectedImage != null) {
-            StorageReference ref = storageReference.child("dialogs/"+userID+"/"+dlgnm+"/"+uuidPhoto);
+            StorageReference ref = storageReference.child("dialogs/" + userID + "/" + dlgnm + "/" + uuidPhoto);
             ref.putFile(selectedImage);
-            myRef.child(userID).child("dialogs").child(dlgnm).child(dataAdapter.getItemCount()+" "+name+" image").setValue("dialogs/"+userID+"/"+dlgnm+"/"+uuidPhoto);
-            ref = storageReference.child("dialogs/"+currentWithUserHashId+"/"+name+"/"+uuidPhoto);
+            myRef.child(userID).child("dialogs").child(dlgnm).push().setValue("dialogs/" + userID + "/" + dlgnm + "/" + uuidPhoto);
+            ref = storageReference.child("dialogs/" + currentWithUserHashId + "/" + name + "/" + uuidPhoto);
             ref.putFile(selectedImage);
-            myRef.child(currentWithUserHashId).child("dialogs").child(name).child(dataAdapter.getItemCount()+" "+name+" image").setValue("dialogs/"+currentWithUserHashId+"/"+name+"/"+uuidPhoto);
+            myRef.child(currentWithUserHashId).child("dialogs").child(name).push().setValue("dialogs/" + currentWithUserHashId + "/" + name + "/" + uuidPhoto);
             selectedImage = null;
         }
     }
@@ -312,4 +351,6 @@ public class MainActivity extends AppCompatActivity {
         myRef.child(userID).child("dialogs_info").child("lastReadedMessage").child(dlgnm).setValue(lastReadedMsg);
         super.onDestroy();
     }
+
+
 }
