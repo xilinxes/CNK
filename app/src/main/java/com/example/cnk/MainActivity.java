@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.Path;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -70,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private Boolean ifInput = false;
     private UUID uuidPhoto;
+    File localFile = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -162,26 +164,29 @@ public class MainActivity extends AppCompatActivity {
                 String messg = dataSnapshot.getValue(String.class);
                 String sub = key.substring(key.length()-5, key.length());
                 if(sub.equals("image")){
-                    StorageReference ref = storage.getReferenceFromUrl(messg);
+                    Log.d("Test3.0", "equals");
+                    StorageReference ref = null;
+                    ref = storage.getReferenceFromUrl("gs://cnkfirebaseproject.appspot.com/"+messg);
                     try {
-                        File localFile = File.createTempFile("images", "jpg");
+                        localFile = File.createTempFile("images", "jpg");
                     } catch (IOException e) {
                         e.printStackTrace();
+                        Log.d("Test3.0", "created localfile");
                     }
+
                     ref.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-
+                            Log.d("Test3.0", "file +");
                         }
                     });
-                    SpannableString ss = new SpannableString(uuidPhoto.toString());
-                 /*   Drawable image = new BitmapDrawable(bitmap);
-                    image.setBounds(0, 0, 300, 300);
-                    ImageSpan span = new ImageSpan(image, ImageSpan.ALIGN_BASELINE);
+                    /*SpannableString ss = new SpannableString("vvvvv");
+                    Drawable image = new BitmapDrawable(bitmap);
+                    imageFromDr.setBounds(0, 0, 300, 300);
+                    ImageSpan span = new ImageSpan(imageFromDr, ImageSpan.ALIGN_BASELINE);
                     ss.setSpan(span, 0, 3, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
                     editMsg.setText(ss);*/
                 }
-
 
                 messages.add(messg);
                 dataAdapter.notifyDataSetChanged();
@@ -293,18 +298,21 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPostResume() {
         stopService(new Intent(getApplicationContext(), MessageNotifficationService.class));
+        myRef.child(userID).child("dialogs_info").child("lastReadedMessage").child(dlgnm).setValue(lastReadedMsg);
         super.onPostResume();
     }
 
     @Override
     protected void onStop() {
         startService(new Intent(getApplicationContext(), MessageNotifficationService.class));
+        myRef.child(userID).child("dialogs_info").child("lastReadedMessage").child(dlgnm).setValue(lastReadedMsg);
         super.onStop();
     }
 
     @Override
     protected void onDestroy() {
         startService(new Intent(getApplicationContext(), MessageNotifficationService.class));
+        myRef.child(userID).child("dialogs_info").child("lastReadedMessage").child(dlgnm).setValue(lastReadedMsg);
         super.onDestroy();
     }
 }
