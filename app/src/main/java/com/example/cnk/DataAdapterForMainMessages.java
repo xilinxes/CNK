@@ -1,8 +1,13 @@
 package com.example.cnk;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,8 +34,18 @@ public class DataAdapterForMainMessages extends RecyclerView.Adapter<DataAdapter
 
     @Override
     public void onBindViewHolder(@NonNull ViewHLDER viewHolder, int i) {
-        String msg = messages.get(i);
-        viewHolder.msgg.setText(msg);
+            String msg = messages.get(i);
+            Log.d("Test3.0", msg);
+            String check = msg.substring(msg.length() - 3);
+            if (check.equals("jpg")) {
+                viewHolder.msgg.setText("");
+                Bitmap bitmap = BitmapFactory.decodeFile(msg);
+                Drawable image = new BitmapDrawable(bitmap);
+                viewHolder.msgg.setBackground(image);
+            } else {
+                viewHolder.msgg.setText(msg);
+            }
+
     }
 
     @Override

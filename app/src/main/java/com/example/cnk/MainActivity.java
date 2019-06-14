@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Path;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
@@ -26,6 +27,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -161,41 +163,36 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 String key = dataSnapshot.getKey();
-                String messg = dataSnapshot.getValue(String.class);
-                String sub = key.substring(key.length()-5, key.length());
+                final String check = key.substring(0,1);
+                final String messg = dataSnapshot.getValue(String.class);
+                String sub = key.substring(key.length()-5);
                 if(sub.equals("image")){
                     Log.d("Test3.0", "equals");
                     StorageReference ref = null;
                     ref = storage.getReferenceFromUrl("gs://cnkfirebaseproject.appspot.com/"+messg);
                     try {
-                        localFile = File.createTempFile("images", "jpg");
+                        localFile = File.createTempFile(check+check+check, "jpg");
                     } catch (IOException e) {
                         e.printStackTrace();
-                        Log.d("Test3.0", "created localfile");
                     }
 
                     ref.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                            Log.d("Test3.0", "file +");
+                            messages.add(localFile.getPath());
                         }
                     });
-                    /*SpannableString ss = new SpannableString("vvvvv");
-                    Drawable image = new BitmapDrawable(bitmap);
-                    imageFromDr.setBounds(0, 0, 300, 300);
-                    ImageSpan span = new ImageSpan(imageFromDr, ImageSpan.ALIGN_BASELINE);
-                    ss.setSpan(span, 0, 3, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
-                    editMsg.setText(ss);*/
                 }
-
-                messages.add(messg);
+                if(sub.equals("ssage")) {
+                    messages.add(messg);
+                    lastReadedMsg = dataAdapter.getItemCount();
+                    if (ifInput) {
+                        myRef.child(currentWithUserHashId).child("dialogs_info").child("allCountMessages").child(name).setValue(messages.size());
+                    }
+                    myRef.child(userID).child("dialogs_info").child("allCountMessages").child(dlgnm).setValue(messages.size());
+                    recMsgs.smoothScrollToPosition(messages.size());
+                }
                 dataAdapter.notifyDataSetChanged();
-                lastReadedMsg = dataAdapter.getItemCount();
-                if (ifInput) {
-                    myRef.child(currentWithUserHashId).child("dialogs_info").child("allCountMessages").child(name).setValue(messages.size());
-                }
-                myRef.child(userID).child("dialogs_info").child("allCountMessages").child(dlgnm).setValue(messages.size());
-                recMsgs.smoothScrollToPosition(messages.size());
             }
 
             @Override
@@ -246,7 +243,7 @@ public class MainActivity extends AppCompatActivity {
             case GALLERY_REQUEST:
                 if (resultCode == RESULT_OK) {
                     selectedImage = data.getData();
-                    ImageView imageView = (ImageView) findViewById(R.id.imgvPhoto);
+                   // ImageView imageView = (ImageView) findViewById(R.id.imgvPhoto);
                     try {
                         bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImage);
                     } catch (IOException e) {
