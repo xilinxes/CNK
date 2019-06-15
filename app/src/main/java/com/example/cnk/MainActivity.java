@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
     SharedPreferences.Editor ed;
     private DataAdapterForMainMessages dataAdapter;
     private Uri selectedImage;
-    private int lastReadedMsg = 0;
+    private int lastReadedMsg = 0,countReadedMsgs=0;
     private FirebaseAuth mAuth;
     private Boolean ifInput = false;
     private UUID uuidPhoto;
@@ -111,10 +111,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 dataAdapter.notifyDataSetChanged();
-                h.postDelayed(this, 3000);
+                h.postDelayed(this, 1000);
             }
         };
         run.run();
+        recMsgs.smoothScrollToPosition(countReadedMsgs);
 
         myRef.orderByChild("nickname").equalTo(dlgnm).addChildEventListener(new ChildEventListener() {
             @Override
@@ -173,6 +174,8 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("Test", currentWithUserHashId + " " + name + " " + msg);
                 Log.d("Test", userID + " " + dlgnm + " " + msg);
                 editMsg.setText("");
+                countReadedMsgs = messages.size()+1;
+                recMsgs.smoothScrollToPosition(countReadedMsgs);
                 //Toast.makeText(getApplicationContext(),currentWithUserHashId.toString(),Toast.LENGTH_SHORT).show();
             }
         });
@@ -226,7 +229,6 @@ public class MainActivity extends AppCompatActivity {
                     myRef.child(currentWithUserHashId).child("dialogs_info").child("allCountMessages").child(name).setValue(messages.size());
                 }
                 myRef.child(userID).child("dialogs_info").child("allCountMessages").child(dlgnm).setValue(messages.size());
-                recMsgs.smoothScrollToPosition(messages.size());
                 dataAdapter.notifyDataSetChanged();
 
             }
@@ -266,6 +268,7 @@ public class MainActivity extends AppCompatActivity {
         name = sPref.getString("Nickname", "r");
         dlgnm = sPref.getString("CurrentDialogName", "");
         dialogName += sPref.getString("CurrentDialogName", "");
+        countReadedMsgs = sPref.getInt("countReadedMsgs",0);
         currentWithUserHashId = sPref.getString("CurrentWithUserHashId", "rrr");
     }
 
@@ -317,6 +320,8 @@ public class MainActivity extends AppCompatActivity {
             ref.putFile(selectedImage);
             myRef.child(currentWithUserHashId).child("dialogs").child(name).push().setValue("dialogs/" + currentWithUserHashId + "/" + name + "/" + uuidPhoto);
             selectedImage = null;
+            countReadedMsgs = messages.size()+1;
+            recMsgs.smoothScrollToPosition(countReadedMsgs);
         }
     }
 

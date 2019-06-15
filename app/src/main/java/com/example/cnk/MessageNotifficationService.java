@@ -44,6 +44,11 @@ public class MessageNotifficationService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
         sPref = getSharedPreferences("Saves", MODE_PRIVATE);
         userId = String.valueOf(sPref.getInt("USER_ID", 1));
         nickname = sPref.getString("Name", "");
@@ -76,8 +81,8 @@ public class MessageNotifficationService extends Service {
 
             }
         });
+        return super.onStartCommand(intent, flags, startId);
     }
-
 
     @Override
     public void onDestroy() {
@@ -104,6 +109,7 @@ public class MessageNotifficationService extends Service {
                 .setWhen(System.currentTimeMillis())
                 .setSmallIcon(R.drawable.ic_data_usage_black_24dp)
                 .setContentTitle(title)
+                .setPriority(100)
                 .setVibrate(vibrPattern)
                 .setContentText(body)
                 .setContentIntent(resultPendingIntent)
