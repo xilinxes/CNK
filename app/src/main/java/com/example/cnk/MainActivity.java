@@ -1,14 +1,9 @@
 package com.example.cnk;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Path;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -18,49 +13,30 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.style.ImageSpan;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.LinkedList;
-import java.util.Random;
 import java.util.UUID;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
     static final int GALLERY_REQUEST = 1;
-    private static int MAX_MESSAGE_LENGTH = 150;
     FirebaseStorage storage;
     StorageReference storageReference;
     ImageButton btnAddPhoto;
@@ -74,15 +50,15 @@ public class MainActivity extends AppCompatActivity {
     String name, userID, currentWithUserHashId, dlgnm, msg;
     String dialogName = "Диалог с ";
     SharedPreferences.Editor ed;
-    private DataAdapterForMainMessages dataAdapter;
-    private Uri selectedImage;
-    private int lastReadedMsg = 0,countReadedMsgs=0;
-    private FirebaseAuth mAuth;
-    private Boolean ifInput = false;
-    private UUID uuidPhoto;
     File localFile = null;
     Handler h = new Handler();
     StorageReference ref;
+    private DataAdapterForMainMessages dataAdapter;
+    private Uri selectedImage;
+    private int lastReadedMsg = 0, countReadedMsgs = 0;
+    private FirebaseAuth mAuth;
+    private Boolean ifInput = false;
+    private UUID uuidPhoto;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,11 +77,9 @@ public class MainActivity extends AppCompatActivity {
         btnAddPhoto = (ImageButton) findViewById(R.id.btnAddPhoto);
         editMsg = (EditText) findViewById(R.id.editMsg);
         recMsgs = (RecyclerView) findViewById(R.id.recyclerMsg);
+        dataAdapter = new DataAdapterForMainMessages(this, messages, name, userID, currentWithUserHashId);
         recMsgs.setLayoutManager(new LinearLayoutManager(this));
-        dataAdapter = new DataAdapterForMainMessages(this, messages);
         recMsgs.setAdapter(dataAdapter);
-        sPref = getSharedPreferences("Saves", MODE_PRIVATE);
-        userID = String.valueOf(sPref.getInt("USER_ID", 1));
         Runnable run = new Runnable() {
 
             @Override
@@ -156,25 +130,34 @@ public class MainActivity extends AppCompatActivity {
         btnInput.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                msg = editMsg.getText().toString();
+                int i = 0;
+                String msg = editMsg.getText().toString();
                 if (msg.isEmpty()) {
                     Toast.makeText(getApplicationContext(), "Пустое сообщение", Toast.LENGTH_SHORT).show();
+                    editMsg.setText("");
                     return;
                 }
-                msg = name + ": ";
+                if (!msg.isEmpty()) {
+                    while ((msg.charAt(i) == ' ' && i < msg.length()) || (msg.charAt(i) == '\n' && i < msg.length())) {
+                        i++;
+                        if (i == msg.length() || msg.isEmpty()) {
+                            Toast.makeText(getApplicationContext(), "Пустое сообщение", Toast.LENGTH_SHORT).show();
+                            editMsg.setText("");
+                            return;
+                        }
+                    }
+
+                }
+                msg = name + ": Nfdjs33NJVjfdophkrgmvmDJfmgm039-=@!@#44,fdkSs";
                 msg += String.valueOf(editMsg.getText());
 
-                if (msg.length() > MAX_MESSAGE_LENGTH) {
-                    Toast.makeText(getApplicationContext(), "Слишком много символов", Toast.LENGTH_SHORT).show();
-                    return;
-                }
                 ifInput = true;
                 myRef.child(currentWithUserHashId).child("dialogs").child(name).push().setValue(msg);
                 myRef.child(userID).child("dialogs").child(dlgnm).push().setValue(msg);
                 Log.d("Test", currentWithUserHashId + " " + name + " " + msg);
                 Log.d("Test", userID + " " + dlgnm + " " + msg);
                 editMsg.setText("");
-                countReadedMsgs = messages.size()+1;
+                countReadedMsgs = messages.size() + 1;
                 recMsgs.smoothScrollToPosition(countReadedMsgs);
                 //Toast.makeText(getApplicationContext(),currentWithUserHashId.toString(),Toast.LENGTH_SHORT).show();
             }
@@ -265,10 +248,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void load() {
+        sPref = getSharedPreferences("Saves", MODE_PRIVATE);
+        userID = String.valueOf(sPref.getInt("USER_ID", 1));
         name = sPref.getString("Nickname", "r");
         dlgnm = sPref.getString("CurrentDialogName", "");
         dialogName += sPref.getString("CurrentDialogName", "");
-        countReadedMsgs = sPref.getInt("countReadedMsgs",0);
+        countReadedMsgs = sPref.getInt("countReadedMsgs", 0);
         currentWithUserHashId = sPref.getString("CurrentWithUserHashId", "rrr");
     }
 
@@ -306,7 +291,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-
     }
 
 
@@ -316,11 +300,11 @@ public class MainActivity extends AppCompatActivity {
             StorageReference ref = storageReference.child("dialogs/" + userID + "/" + dlgnm + "/" + uuidPhoto);
             ref.putFile(selectedImage);
             myRef.child(userID).child("dialogs").child(dlgnm).push().setValue("dialogs/" + userID + "/" + dlgnm + "/" + uuidPhoto);
-            ref = storageReference.child("dialogs/" + currentWithUserHashId + "/" + name + "/" + uuidPhoto);
-            ref.putFile(selectedImage);
-            myRef.child(currentWithUserHashId).child("dialogs").child(name).push().setValue("dialogs/" + currentWithUserHashId + "/" + name + "/" + uuidPhoto);
+            //ref = storageReference.child("dialogs/" + currentWithUserHashId + "/" + name + "/" + uuidPhoto);
+            //ref.putFile(selectedImage);
+            myRef.child(currentWithUserHashId).child("dialogs").child(name).push().setValue("dialogs/" + userID + "/" + name + "/" + uuidPhoto);
             selectedImage = null;
-            countReadedMsgs = messages.size()+1;
+            countReadedMsgs = messages.size() + 1;
             recMsgs.smoothScrollToPosition(countReadedMsgs);
         }
     }
