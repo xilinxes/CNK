@@ -1,7 +1,9 @@
 package com.example.cnk;
 
 import android.content.Context;
+import android.graphics.drawable.Animatable;
 import android.support.annotation.NonNull;
+import android.support.v4.widget.CircularProgressDrawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.annotation.GlideModule;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -19,18 +22,22 @@ public class DataAdapterForMainMessages extends RecyclerView.Adapter<RecyclerVie
     LinkedList<String> messages;
     FirebaseStorage storage;
     StorageReference ref;
-    String equalname, userID, currentWithUserHashId;
+    String equalname, userID;
     // LayoutInflater inflater;
     private Context context;
+    CircularProgressDrawable circ;
 
 
-    public DataAdapterForMainMessages(Context context, LinkedList<String> messages, String equalname, String userID, String currentWithUserHashId) {
+    public DataAdapterForMainMessages(Context context, LinkedList<String> messages, String equalname, String userID) {
         this.context = context;
         this.messages = messages;
         this.equalname = equalname;
         this.userID = userID;
-        this.currentWithUserHashId = currentWithUserHashId;
         storage = FirebaseStorage.getInstance();
+        circ = new CircularProgressDrawable(context);
+        circ.setStrokeWidth(15f);
+        circ.setCenterRadius(50f);
+        circ.start();
         // this.inflater = LayoutInflater.from(context);
     }
 
@@ -51,7 +58,7 @@ public class DataAdapterForMainMessages extends RecyclerView.Adapter<RecyclerVie
             e.getStackTrace();
         }
         try {
-            checkForImageRight = msg.substring(0, 9+userID.length());
+            checkForImageRight = msg.substring(0, 9 + userID.length());
         } catch (IndexOutOfBoundsException e) {
             e.getStackTrace();
         }
@@ -84,10 +91,10 @@ public class DataAdapterForMainMessages extends RecyclerView.Adapter<RecyclerVie
                 break;
             case TYPE_IMAGE_LEFT:
                 layout = R.layout.item_mage;
-                View imageView = LayoutInflater
+                View imageViewLeft = LayoutInflater
                         .from(viewGroup.getContext())
                         .inflate(layout, viewGroup, false);
-                viewHolder = new ViewHlderForImages(imageView);
+                viewHolder = new ViewHlderForImages(imageViewLeft);
                 break;
             case TYPE_RIGHT_TEXT_MESSAGE:
                 layout = R.layout.activity_item_right_message;
@@ -127,7 +134,7 @@ public class DataAdapterForMainMessages extends RecyclerView.Adapter<RecyclerVie
                 break;
             case TYPE_IMAGE_RIGHT:
                 ref = storage.getReferenceFromUrl("gs://cnkfirebaseproject.appspot.com/" + msg);
-                ((ViewHlderForImagesRight) viewHolder).showImage(ref);
+                ((ViewHlderForImagesRight) viewHolder).showImageRight(ref);
                 break;
         }
     }
@@ -181,33 +188,35 @@ public class DataAdapterForMainMessages extends RecyclerView.Adapter<RecyclerVie
 
 
     public class ViewHlderForImages extends RecyclerView.ViewHolder {
-        private ImageView image;
+        private ImageView imageLeft;
 
         public ViewHlderForImages(View itemView) {
             super(itemView);
-            image = itemView.findViewById(R.id.itemImage);
+            imageLeft = itemView.findViewById(R.id.itemImageLeft);
         }
 
         public void showImage(StorageReference ref) {
             GlideApp.with(context)
-                    .load(ref)
-                    .into(image);
+                    .load(ref).placeholder(circ)
+                    .into(imageLeft);
         }
 
     }
 
     public class ViewHlderForImagesRight extends RecyclerView.ViewHolder {
-        private ImageView image;
+        private ImageView imageRight;
 
         public ViewHlderForImagesRight(View itemView) {
             super(itemView);
-            image = itemView.findViewById(R.id.itemImageRight);
+            imageRight = itemView.findViewById(R.id.itemImageRight);
         }
 
-        public void showImage(StorageReference ref) {
+        public void showImageRight(StorageReference ref) {
+
             GlideApp.with(context)
-                    .load(ref)
-                    .into(image);
+                    .load(ref).placeholder(circ)
+                    .into(imageRight);
+
         }
 
     }

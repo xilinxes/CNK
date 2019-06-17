@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
     static final int GALLERY_REQUEST = 1;
     FirebaseStorage storage;
     StorageReference storageReference;
-    ImageButton btnAddPhoto;
+    ImageButton btnAddPhoto, strelka_vniz;
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     DatabaseReference myRef = database.getReference("Users");
     Button btnInput;
@@ -74,10 +74,11 @@ public class MainActivity extends AppCompatActivity {
         storageReference = storage.getReference();
         //btnClear = (Button) findViewById(R.id.btnClear);
         btnInput = (Button) findViewById(R.id.btnSndMsg);
+        strelka_vniz = (ImageButton) findViewById(R.id.strelka_vniz);
         btnAddPhoto = (ImageButton) findViewById(R.id.btnAddPhoto);
         editMsg = (EditText) findViewById(R.id.editMsg);
         recMsgs = (RecyclerView) findViewById(R.id.recyclerMsg);
-        dataAdapter = new DataAdapterForMainMessages(this, messages, name, userID, currentWithUserHashId);
+        dataAdapter = new DataAdapterForMainMessages(this, messages, name, userID);
         recMsgs.setLayoutManager(new LinearLayoutManager(this));
         recMsgs.setAdapter(dataAdapter);
         Runnable run = new Runnable() {
@@ -212,6 +213,9 @@ public class MainActivity extends AppCompatActivity {
                     myRef.child(currentWithUserHashId).child("dialogs_info").child("allCountMessages").child(name).setValue(messages.size());
                 }
                 myRef.child(userID).child("dialogs_info").child("allCountMessages").child(dlgnm).setValue(messages.size());
+                if(messages.size()>countReadedMsgs){
+                    strelka_vniz.setVisibility(View.VISIBLE);
+                }
                 dataAdapter.notifyDataSetChanged();
 
             }
@@ -244,6 +248,15 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(photoPickerIntent, GALLERY_REQUEST);
             }
         });
+
+        strelka_vniz.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                recMsgs.smoothScrollToPosition(messages.size());
+                strelka_vniz.setVisibility(View.INVISIBLE);
+            }
+        });
+
 
     }
 
@@ -297,9 +310,9 @@ public class MainActivity extends AppCompatActivity {
     private void uploadImage() {
 
         if (selectedImage != null) {
-            StorageReference ref = storageReference.child("dialogs/" + userID + "/" + dlgnm + "/" + uuidPhoto);
+            StorageReference ref = storageReference.child("dialogs/" + userID + "/" + name + "/" + uuidPhoto);
             ref.putFile(selectedImage);
-            myRef.child(userID).child("dialogs").child(dlgnm).push().setValue("dialogs/" + userID + "/" + dlgnm + "/" + uuidPhoto);
+            myRef.child(userID).child("dialogs").child(dlgnm).push().setValue("dialogs/" + userID + "/" + name + "/" + uuidPhoto);
             //ref = storageReference.child("dialogs/" + currentWithUserHashId + "/" + name + "/" + uuidPhoto);
             //ref.putFile(selectedImage);
             myRef.child(currentWithUserHashId).child("dialogs").child(name).push().setValue("dialogs/" + userID + "/" + name + "/" + uuidPhoto);

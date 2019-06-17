@@ -14,6 +14,7 @@
             <TextView
                 android:id="@+id/messageItem"
                 android:layout_width="wrap_content"
+                android:maxWidth="300dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="left"
                 android:padding="8dp"
