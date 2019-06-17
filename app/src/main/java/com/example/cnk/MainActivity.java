@@ -120,14 +120,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        /*btnClear.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                myRef.removeValue();
-                dataAdapter.notifyDataSetChanged();
-                messages.clear();
-            }
-        });*/
         btnInput.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
