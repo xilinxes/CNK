@@ -3,8 +3,10 @@ package com.example.cnk;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
+import android.opengl.Visibility;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -13,9 +15,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -23,18 +27,19 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 public class Profile extends AppCompatActivity {
+    TextView nicknameTv;
     EditText name, surname, nickname;
     Button save, dialogs, signout;
     String userID;
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     DatabaseReference myRef = database.getReference("Users");
-    private FirebaseAuth mAuth;
-    private DatabaseReference users = database.getReference("Users");
-    private double x1, x2, y1, y2;
     SharedPreferences sPref;
     ProgressBar prBar;
     SharedPreferences.Editor ed;
-    Boolean readyToFinish = false;
+    Boolean readyToFinish = false, checkFOrProfile = false;
+    private FirebaseAuth mAuth;
+    private DatabaseReference users = database.getReference("Users");
+    private double x1, x2, y1, y2;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -42,9 +47,10 @@ public class Profile extends AppCompatActivity {
         setContentView(R.layout.activity_profile);
         prBar = findViewById(R.id.Bar);
         prBar.setVisibility(ProgressBar.VISIBLE);
-        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.red)));
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.backForDialogsWindowItem)));
         sPref = getSharedPreferences("Saves", MODE_PRIVATE);
         signout = findViewById(R.id.btnSignOut);
+        nicknameTv = findViewById(R.id.nicknameTv);
         loadText();
         name = findViewById(R.id.name);
         dialogs = findViewById(R.id.dialogs);
@@ -57,15 +63,24 @@ public class Profile extends AppCompatActivity {
         ed.commit();
 
 
-
         myRef.child(userID).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.child("profileComplete").getValue(String.class).equals("true")){
+                    nicknameTv.setText("Никнейм: "+dataSnapshot.child("nickname").getValue(String.class));
+                    nickname.setVisibility(View.INVISIBLE);
+                    nicknameTv.setVisibility(View.VISIBLE);
+                    checkFOrProfile = true;
+                }
+                else {
+                    nicknameTv.setVisibility(View.INVISIBLE);
+                    nickname.setVisibility(View.VISIBLE);
+                }
+                nickname.setText(dataSnapshot.child("nickname").getValue(String.class));
                 name.setText(dataSnapshot.child("name").getValue(String.class));
                 surname.setText(dataSnapshot.child("surname").getValue(String.class));
-                nickname.setText(dataSnapshot.child("nickname").getValue(String.class));
                 ed = sPref.edit();
-                ed.putString("Nickname", nickname.getText().toString());
+                ed.putString("Nickname", dataSnapshot.child("nickname").getValue(String.class));
                 ed.putString("Name", name.getText().toString());
                 ed.putString("Surname", surname.getText().toString());
                 ed.commit();
@@ -97,7 +112,10 @@ public class Profile extends AppCompatActivity {
         dialogs.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(readyToFinish) {
+                if(!checkFOrProfile){
+                    Toast.makeText(getApplicationContext(), "Закончите настройку профиля", Toast.LENGTH_LONG).show();
+                }
+                if (readyToFinish&&checkFOrProfile) {
                     Intent intent = new Intent(getApplicationContext(), DialogsWindow.class);
                     finish();
                     startActivity(intent);
@@ -108,20 +126,60 @@ public class Profile extends AppCompatActivity {
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(nickname.getText().toString().isEmpty()){
+                    Toast.makeText(Profile.this, "введите никнейм", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                myRef.orderByChild("nickname").equalTo(nickname.getText().toString()).addChildEventListener(new ChildEventListener() {
+                    @Override
+                    public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                        if (userID != dataSnapshot.getKey()&&nickname.getVisibility()==View.VISIBLE ) {
+                            Toast.makeText(getApplicationContext(), "никнейм уже занят", Toast.LENGTH_LONG).show();
+                            nickname.setText("");
+                            users.child("nicknames").child(userID).setValue(nickname.getText().toString());
+                            users.child(userID).child("nickname").setValue(nickname.getText().toString());
+                            ed.putString("Nickname", nickname.getText().toString());
+                            users.child(userID).child("profileComplete").setValue("false");
+                            ed.commit();
+                        }
+                    }
+
+                    @Override
+                    public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+                    }
+
+                    @Override
+                    public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+                    }
+
+                    @Override
+                    public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
                 users.child("nicknames").child(userID).setValue(nickname.getText().toString());
+                users.child(userID).child("profileComplete").setValue("true");
                 users.child(userID).child("nickname").setValue(nickname.getText().toString());
                 users.child(userID).child("name").setValue(name.getText().toString());
                 users.child(userID).child("surname").setValue(surname.getText().toString());
-                ed = sPref.edit();
                 ed.putString("Nickname", nickname.getText().toString());
                 ed.putString("Name", name.getText().toString());
                 ed.putString("Surname", surname.getText().toString());
                 ed.commit();
-                Toast.makeText(getApplicationContext(), "Сохранено", Toast.LENGTH_LONG).show();
 
+                // Toast.makeText(getApplicationContext(), "Сохранено", Toast.LENGTH_LONG).show();
 
             }
         });
+
+
 
         /*users.addValueEventListener(new ValueEventListener() {
             @Override
@@ -159,7 +217,7 @@ public class Profile extends AppCompatActivity {
             case MotionEvent.ACTION_MOVE: {
                 x2 = event.getX();
                 y2 = event.getY();
-                if ((x2 - x1) < -300 && Math.abs(y2 - y1) < 200 && readyToFinish) {
+                if ((x2 - x1) < -300 && Math.abs(y2 - y1) < 200 && readyToFinish&&checkFOrProfile) {
                     Intent intent = new Intent(getApplicationContext(), DialogsWindow.class);
                     finish();
                     startActivity(intent);

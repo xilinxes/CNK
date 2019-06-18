@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/backGround"
     tools:context=".MainActivity">
 
 
@@ -55,7 +56,9 @@
             android:id="@+id/btnSndMsg"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/backForDialogsWindowItem"
             android:text="@string/btnSend"
+            android:textColor="@color/white"
             android:textSize="24dp" />
     </LinearLayout>
 

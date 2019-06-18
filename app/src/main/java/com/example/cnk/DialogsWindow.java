@@ -47,7 +47,7 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
         setContentView(R.layout.activity_dialogs_window);
         try {
             startService(new Intent(getApplicationContext(), MessageNotifficationService.class));
-            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.red)));
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.backForDialogsWindowItem)));
             sPref = getSharedPreferences("Saves", MODE_PRIVATE);
             loadText();
             takeUserNick();

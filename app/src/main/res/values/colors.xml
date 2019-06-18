@@ -4,5 +4,10 @@
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
     <color name="red">#DD0063F8</color>
+    <color name="rightMessage">#383B41</color>
     <color name="backgroundForAddPhotoBtn">#00000000</color>
+    <color name="backGround">#5E5D5D</color>
+    <color name="backForDialogsWindowItem">#4E4B4B</color>
+    <color name="onetwothree">#797777</color>
+    <color name="white">#FFFFFF</color>
 </resources>

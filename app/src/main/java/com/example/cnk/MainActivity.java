@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         sPref = getSharedPreferences("Saves", MODE_PRIVATE);
         load();
-        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.red)));
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.backForDialogsWindowItem)));
         getSupportActionBar().setTitle(dialogName);
         startService(new Intent(this, MessageService.class));
         mAuth = FirebaseAuth.getInstance();
@@ -345,6 +345,5 @@ public class MainActivity extends AppCompatActivity {
         myRef.child(userID).child("dialogs_info").child("lastReadedMessage").child(dlgnm).setValue(lastReadedMsg);
         super.onDestroy();
     }
-
 
 }

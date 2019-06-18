@@ -43,7 +43,7 @@ public class Registration extends AppCompatActivity {
             startActivity(new Intent(getApplicationContext(),Profile.class));
         }
         setContentView(R.layout.activity_registration);
-        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.red)));
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.backForDialogsWindowItem)));
         startService(new Intent(this, MessageNotifficationService.class));
         prBar = findViewById(R.id.progressBar);
         vxod = findViewById(R.id.edtRegistration);
@@ -87,6 +87,8 @@ public class Registration extends AppCompatActivity {
                             users.child(String.valueOf(mail.hashCode())).setValue(mail.hashCode());
                             users.child(String.valueOf(mail.hashCode())).child("mail").setValue(mail);
                             users.child(String.valueOf(mail.hashCode())).child("password").setValue(password);
+                            users.child(String.valueOf(mail.hashCode())).child("profileComplete").setValue("false");
+
                             Log.d("Tag", "createUserWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
                             user.updateEmail(mail);
