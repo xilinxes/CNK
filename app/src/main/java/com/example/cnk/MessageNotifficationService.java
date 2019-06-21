@@ -10,11 +10,11 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
-import android.widget.Toast;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -28,9 +28,11 @@ public class MessageNotifficationService extends Service {
     DatabaseReference myRef = database.getReference("Users");
     String userId, nickname;
     String NOTIFICATION_CNANNEL_ID = "Messages";
+    Handler h = new Handler();
     SharedPreferences sPref;
     Boolean pr = true;
     long[] vibrPattern = new long[]{0, 300, 500, 500};
+
 
     public MessageNotifficationService() {
     }
@@ -44,44 +46,16 @@ public class MessageNotifficationService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        run.run();
+
 
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        sPref = getSharedPreferences("Saves", MODE_PRIVATE);
-        userId = String.valueOf(sPref.getInt("USER_ID", 1));
-        nickname = sPref.getString("Name", "");
-        myRef.child(userId).child("dialogs_info").child("allCountMessages").addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
 
-            }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                if (pr) {
-                    String userWithName = dataSnapshot.getKey();
-                    showNotification(userWithName, nickname, "Вам новое сообщение от " + userWithName);
-                }
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
         return START_STICKY;
+
     }
 
     @Override
@@ -116,4 +90,44 @@ public class MessageNotifficationService extends Service {
                 .setContentInfo("INFO");
         notificationManager.notify(userWithName.hashCode(), notificationBuilder.build());
     }
+
+    Runnable run = new Runnable() {
+
+        @Override
+        public void run() {
+            sPref = getSharedPreferences("Saves", MODE_PRIVATE);
+            userId = String.valueOf(sPref.getInt("USER_ID", 1));
+            nickname = sPref.getString("Name", "");
+            myRef.child(userId).child("dialogs_info").child("allCountMessages").addChildEventListener(new ChildEventListener() {
+                @Override
+                public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+                }
+
+                @Override
+                public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                    if (pr) {
+                        String userWithName = dataSnapshot.getKey();
+                        showNotification(userWithName, nickname, "Вам новое сообщение от " + userWithName);
+                    }
+                }
+
+                @Override
+                public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+                }
+
+                @Override
+                public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+            h.postDelayed(this, 1000);
+        }
+    };
 }
