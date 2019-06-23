@@ -31,6 +31,7 @@ public class MessageNotifficationService extends Service {
     Handler h = new Handler();
     SharedPreferences sPref;
     Boolean pr = true;
+    Boolean chechkDestroy = true;
     long[] vibrPattern = new long[]{0, 300, 500, 500};
 
 
@@ -60,6 +61,7 @@ public class MessageNotifficationService extends Service {
 
     @Override
     public void onDestroy() {
+        startService(new Intent(getApplicationContext(), MessageNotifficationService.class));
         pr = false;
     }
 
@@ -109,6 +111,7 @@ public class MessageNotifficationService extends Service {
                     if (pr) {
                         String userWithName = dataSnapshot.getKey();
                         showNotification(userWithName, nickname, "Вам новое сообщение от " + userWithName);
+                        h.postDelayed(run, 3000);
                     }
                 }
 
@@ -130,4 +133,5 @@ public class MessageNotifficationService extends Service {
             h.postDelayed(this, 1000);
         }
     };
+
 }

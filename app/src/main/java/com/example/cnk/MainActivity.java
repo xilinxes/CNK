@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
@@ -205,6 +206,7 @@ public class MainActivity extends AppCompatActivity {
                     myRef.child(currentWithUserHashId).child("dialogs_info").child("allCountMessages").child(name).setValue(messages.size());
                 }
                 myRef.child(userID).child("dialogs_info").child("allCountMessages").child(dlgnm).setValue(messages.size());
+
                 if(messages.size()>countReadedMsgs){
                     strelka_vniz.setVisibility(View.VISIBLE);
                 }
@@ -248,7 +250,6 @@ public class MainActivity extends AppCompatActivity {
                 strelka_vniz.setVisibility(View.INVISIBLE);
             }
         });
-
 
     }
 
