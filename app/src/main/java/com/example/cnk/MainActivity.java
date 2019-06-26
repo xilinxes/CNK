@@ -88,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 dataAdapter.notifyDataSetChanged();
                 h.postDelayed(this, 1000);
+                Log.d("dfafavfasdv", String.valueOf(recMsgs.getLayoutManager().getHeightMode()));
             }
         };
         run.run();

@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.MultiAutoCompleteTextView;
 
@@ -28,7 +29,7 @@ import java.util.ArrayList;
 public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNoteListener {
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     RecyclerView recMsgs;
-    MultiAutoCompleteTextView name;
+    AutoCompleteTextView name;
     DatabaseReference myRef = database.getReference("Users");
     SharedPreferences sPref;
     String userID;
@@ -36,6 +37,7 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
     ArrayList<String> countUnreadedMsgs = new ArrayList<>();
     ArrayList<String> baseOfNicks = new ArrayList<>();
     ArrayList<String> lastReadedMessage = new ArrayList<>();
+    ArrayAdapter<String> adapter;
     Button dialog;
     String currentUsernickname, currentWithUserHashId, allCountMessages;
     SharedPreferences.Editor ed;
@@ -49,14 +51,18 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
             startService(new Intent(getApplicationContext(), MessageNotifficationService.class));
             getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.backForDialogsWindowItem)));
             sPref = getSharedPreferences("Saves", MODE_PRIVATE);
-            loadText();
             takeUserNick();
+            loadText();
+            /*adapter = new ArrayAdapter<String>(getApplicationContext(), R.layout.support_simple_spinner_dropdown_item, baseOfNicks);
+            name.setAdapter(adapter);*/
             name = findViewById(R.id.name);
             dialog = findViewById(R.id.addDialog);
             recMsgs = (RecyclerView) findViewById(R.id.dialogs);
             recMsgs.setLayoutManager(new LinearLayoutManager(this));
             final DataAdapter dataAdapter = new DataAdapter(this, messages, countUnreadedMsgs, this);
             recMsgs.setAdapter(dataAdapter);
+            adapter = new ArrayAdapter<>(this,R.layout.drop_down_spinner,baseOfNicks);
+            name.setAdapter(adapter);
 
 
             myRef.child(userID).child("dialogs").addChildEventListener(new ChildEventListener() {
@@ -152,8 +158,7 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
                 public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                     String nick = dataSnapshot.getValue(String.class);
                     baseOfNicks.add(nick);
-                    ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplicationContext(), R.layout.support_simple_spinner_dropdown_item, baseOfNicks);
-                    name.setAdapter(adapter);
+                    dataAdapter.notifyDataSetChanged();
                 }
 
                 @Override

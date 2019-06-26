@@ -32,7 +32,7 @@ public class MessageNotifficationService extends Service {
     SharedPreferences sPref;
     Boolean pr = true;
     Boolean chechkDestroy = true;
-    long[] vibrPattern = new long[]{0, 300, 500, 500};
+    long[] vibrPattern = new long[]{0, 200, 500, 200};
 
 
     public MessageNotifficationService() {
@@ -54,14 +54,11 @@ public class MessageNotifficationService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
-        return START_STICKY;
-
+        return MessageNotifficationService.START_STICKY;
     }
 
     @Override
     public void onDestroy() {
-        startService(new Intent(getApplicationContext(), MessageNotifficationService.class));
         pr = false;
     }
 
