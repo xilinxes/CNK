@@ -6,6 +6,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -26,8 +27,9 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
-public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNoteListener {
+public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNoteListener{
     FirebaseDatabase database = FirebaseDatabase.getInstance();
+    BottomSheetBehavior mBottomSheetBehavior;
     RecyclerView recMsgs;
     AutoCompleteTextView name;
     DatabaseReference myRef = database.getReference("Users");
@@ -38,7 +40,7 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
     ArrayList<String> baseOfNicks = new ArrayList<>();
     ArrayList<String> lastReadedMessage = new ArrayList<>();
     ArrayAdapter<String> adapter;
-    Button dialog;
+    Button dialog,save;
     String currentUsernickname, currentWithUserHashId, allCountMessages;
     SharedPreferences.Editor ed;
     int i = 0;
@@ -53,9 +55,10 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
             sPref = getSharedPreferences("Saves", MODE_PRIVATE);
             takeUserNick();
             loadText();
-            /*adapter = new ArrayAdapter<String>(getApplicationContext(), R.layout.support_simple_spinner_dropdown_item, baseOfNicks);
-            name.setAdapter(adapter);*/
+            View bottomSheet = findViewById(R.id.bottomSht);
+            mBottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
             name = findViewById(R.id.name);
+            save = findViewById(R.id.save);
             dialog = findViewById(R.id.addDialog);
             recMsgs = (RecyclerView) findViewById(R.id.dialogs);
             recMsgs.setLayoutManager(new LinearLayoutManager(this));
@@ -181,11 +184,9 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
 
                 }
             });
-
-            dialog.setOnClickListener(new View.OnClickListener() {
+            save.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
                     myRef.orderByChild("nickname").equalTo(name.getText().toString()).addChildEventListener(new ChildEventListener() {
                         @Override
                         public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
@@ -200,6 +201,7 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
                             myRef.child(currentWithUserHashId).child("dialogs_info").child("lastReadedMessage").child(currentUsernickname).setValue("0");
                             //pr1 = true;
                             name.setText("");
+                            mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                         }
 
                         @Override
@@ -223,9 +225,14 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
                         }
                     });
 
-                    //Toast.makeText(getApplicationContext(), "Такого пользователя не существует", Toast.LENGTH_LONG).show();
                 }
+            });
 
+            dialog.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                }
 
             });
         } catch (Exception e) {
