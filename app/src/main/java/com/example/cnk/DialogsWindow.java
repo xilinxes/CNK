@@ -307,17 +307,6 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
 
     }
 
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        Intent intent = new Intent(this, Profile.class);
-        ed = sPref.edit();
-        ed.putString("CurrentWithUserHashId", currentWithUserHashId);
-        ed.commit();
-        finish();
-        startActivity(intent);
-        return super.onKeyDown(keyCode, event);
-    }
-
    /* public void startCheck(final DataAdapter dataAdapter) {
         messages.clear();
         countUnreadedMsgs.clear();
@@ -328,4 +317,14 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
         }
     }*/
 
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(this, Profile.class);
+        ed = sPref.edit();
+        ed.putString("CurrentWithUserHashId", currentWithUserHashId);
+        ed.commit();
+        finish();
+        startActivity(intent);
+        super.onBackPressed();
+    }
 }

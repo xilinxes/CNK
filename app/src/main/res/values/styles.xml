@@ -3,9 +3,21 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorPrimary">@color/backForDialogsWindowItem</item>
+        <item name="colorPrimaryDark">@color/backForDialogsWindowItem</item>
         <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <style name="CustomAlertDialog" parent="Theme.MaterialComponents.Dialog.Alert">
+        <item name="android:windowBackground">@color/backGround</item>
+        <item name="android:actionBarItemBackground">@color/backGround</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:typeface">monospace</item>
+        <item name="android:textAppearance">@style/TextAppearance.AppCompat.Body1</item>
+        <item name="android:colorBackground">@color/backGround</item>
+        <item name="android:colorButtonNormal">@color/backGround</item>
+        <item name="android:panelColorBackground">@color/backGround</item>
+        <item name="android:textSize">20dp</item>
     </style>
 
 </resources>

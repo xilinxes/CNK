@@ -1,5 +1,7 @@
 package com.example.cnk;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
@@ -9,6 +11,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -200,16 +203,6 @@ public class Profile extends AppCompatActivity {
         userID = String.valueOf(sPref.getInt("USER_ID", 1));
     }
 
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            /*Intent intent = new Intent(this, Profile.class);
-            finish();
-            startActivity(intent);*/
-        }
-        // return super.onKeyDown(keyCode, event);
-        return false;
-    }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -236,5 +229,31 @@ public class Profile extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+    }
+
+    @Override
+    public void onBackPressed() {
+        openQuitDialog();
+    }
+
+    private void openQuitDialog() {
+        AlertDialog.Builder quitDialog = new AlertDialog.Builder(new ContextThemeWrapper(this,R.style.CustomAlertDialog));
+        quitDialog.setTitle("Выйти?");
+
+        quitDialog.setNegativeButton("Нет", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // TODO Auto-generated method stub
+            }
+        });
+        quitDialog.setPositiveButton("Да", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // TODO Auto-generated method stub
+                finish();
+            }
+        });
+
+        quitDialog.show();
     }
 }
