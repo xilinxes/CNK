@@ -332,6 +332,5 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
         ed.commit();
         finish();
         startActivity(intent);
-        super.onBackPressed();
     }
 }

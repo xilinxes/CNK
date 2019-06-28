@@ -19,5 +19,4 @@
         <item name="android:panelColorBackground">@color/backGround</item>
         <item name="android:textSize">20dp</item>
     </style>
-
 </resources>

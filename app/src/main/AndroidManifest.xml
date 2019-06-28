@@ -3,6 +3,7 @@
     package="com.example.cnk">
 
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
@@ -18,7 +19,8 @@
             android:enabled="true"
             android:exported="true"></service>
 
-        <activity android:name=".DialogsWindow">
+        <activity android:name=".DialogsWindow"
+            android:noHistory="true">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 

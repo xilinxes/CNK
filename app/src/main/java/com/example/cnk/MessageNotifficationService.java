@@ -32,7 +32,7 @@ public class MessageNotifficationService extends Service {
     SharedPreferences sPref;
     Boolean pr = true;
     Boolean chechkDestroy = true;
-    long[] vibrPattern = new long[]{0, 200, 500, 200};
+    long[] vibrPattern = new long[]{0, 200};
 
 
     public MessageNotifficationService() {
@@ -108,7 +108,7 @@ public class MessageNotifficationService extends Service {
                     if (pr) {
                         String userWithName = dataSnapshot.getKey();
                         showNotification(userWithName, nickname, "Вам новое сообщение от " + userWithName);
-                        h.postDelayed(run, 3000);
+                        h.postDelayed(run, 2000);
                     }
                 }
 
