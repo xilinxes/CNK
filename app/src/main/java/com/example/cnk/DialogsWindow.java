@@ -11,12 +11,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.MultiAutoCompleteTextView;
+import android.widget.Toast;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -27,7 +26,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
-public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNoteListener{
+public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNoteListener {
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     BottomSheetBehavior mBottomSheetBehavior;
     RecyclerView recMsgs;
@@ -40,7 +39,7 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
     ArrayList<String> baseOfNicks = new ArrayList<>();
     ArrayList<String> lastReadedMessage = new ArrayList<>();
     ArrayAdapter<String> adapter;
-    Button dialog,save;
+    Button dialog, save;
     String currentUsernickname, currentWithUserHashId, allCountMessages;
     SharedPreferences.Editor ed;
     int i = 0;
@@ -64,7 +63,7 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
             recMsgs.setLayoutManager(new LinearLayoutManager(this));
             final DataAdapter dataAdapter = new DataAdapter(this, messages, countUnreadedMsgs, this);
             recMsgs.setAdapter(dataAdapter);
-            adapter = new ArrayAdapter<>(this,R.layout.drop_down_spinner,baseOfNicks);
+            adapter = new ArrayAdapter<>(this, R.layout.drop_down_spinner, baseOfNicks);
             name.setAdapter(adapter);
 
 
@@ -184,54 +183,21 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
 
                 }
             });
+
             save.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    myRef.orderByChild("nickname").equalTo(name.getText().toString()).addChildEventListener(new ChildEventListener() {
-                        @Override
-                        public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                            currentWithUserHashId = dataSnapshot.getKey();
-                            Log.d("Test", currentUsernickname);
-                            String nick = name.getText().toString();
-                            myRef.child(userID).child("dialogs").child(name.getText().toString()).setValue(nick);
-                            myRef.child(currentWithUserHashId).child("dialogs").child(currentUsernickname).setValue(currentUsernickname);
-                            myRef.child(userID).child("dialogs_info").child("lastReadedMessage").child(nick).setValue("0");
-                            myRef.child(userID).child("dialogs_info").child("allCountMessages").child(nick).setValue("0");
-                            myRef.child(currentWithUserHashId).child("dialogs_info").child("allCountMessages").child(currentUsernickname).setValue("0");
-                            myRef.child(currentWithUserHashId).child("dialogs_info").child("lastReadedMessage").child(currentUsernickname).setValue("0");
-                            //pr1 = true;
-                            name.setText("");
-                            mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-                        }
-
-                        @Override
-                        public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-                        }
-
-                        @Override
-                        public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
-                        }
-
-                        @Override
-                        public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                        }
-                    });
-
+                    addDialog();
                 }
             });
-
             dialog.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                    if (mBottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+                        addDialog();
+                        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                    } else
+                        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
                 }
 
             });
@@ -332,5 +298,52 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
         ed.commit();
         finish();
         startActivity(intent);
+    }
+
+    public void addDialog() {
+        myRef.orderByChild("nickname").equalTo(name.getText().toString()).addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                for (int i = 0; i < messages.size(); i++) {
+                    if ((messages.get(i)).equals(name.getText().toString())) {
+                        Toast.makeText(DialogsWindow.this, "Диалог уже существует", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                }
+                currentWithUserHashId = dataSnapshot.getKey();
+                Log.d("Test", currentUsernickname);
+                String nick = name.getText().toString();
+                myRef.child(userID).child("dialogs").child(name.getText().toString()).setValue(nick);
+                myRef.child(currentWithUserHashId).child("dialogs").child(currentUsernickname).setValue(currentUsernickname);
+                myRef.child(userID).child("dialogs_info").child("lastReadedMessage").child(nick).setValue("0");
+                myRef.child(userID).child("dialogs_info").child("allCountMessages").child(nick).setValue("0");
+                myRef.child(currentWithUserHashId).child("dialogs_info").child("allCountMessages").child(currentUsernickname).setValue("0");
+                myRef.child(currentWithUserHashId).child("dialogs_info").child("lastReadedMessage").child(currentUsernickname).setValue("0");
+                //pr1 = true;
+                name.setText("");
+                mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 }

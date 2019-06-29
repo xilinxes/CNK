@@ -25,22 +25,23 @@ import com.google.firebase.database.FirebaseDatabase;
 public class Registration extends AppCompatActivity {
     Button ok;
     FirebaseDatabase database = FirebaseDatabase.getInstance();
+    SharedPreferences sPref;
+    SharedPreferences.Editor ed;
+    ProgressBar prBar;
     private FirebaseAuth mAuth;
     private EditText email, pass;
     private TextView vxod;
     private boolean check;
     private DatabaseReference users = database.getReference("Users");
-    SharedPreferences sPref;
-    SharedPreferences.Editor ed;
-    ProgressBar prBar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         sPref = getSharedPreferences("Saves", MODE_PRIVATE);
         check = sPref.getBoolean("check", false);
-        if(check){
+        if (check) {
             finish();
-            startActivity(new Intent(getApplicationContext(),Profile.class));
+            startActivity(new Intent(getApplicationContext(), Profile.class));
         }
         setContentView(R.layout.activity_registration);
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.backForDialogsWindowItem)));
@@ -62,7 +63,12 @@ public class Registration extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 prBar.setVisibility(ProgressBar.VISIBLE);
-                createUser();
+                try {
+                    createUser();
+                } catch (IllegalArgumentException e) {
+                    Toast.makeText(Registration.this, "Заполните поля",Toast.LENGTH_SHORT).show();
+                    prBar.setVisibility(ProgressBar.INVISIBLE);
+                }
             }
         });
     }
@@ -95,7 +101,7 @@ public class Registration extends AppCompatActivity {
                             user.updatePassword(password);
                             save();
                             finish();
-                            startActivity(new Intent(getApplicationContext(),Profile.class));
+                            startActivity(new Intent(getApplicationContext(), Profile.class));
 
                         } else {
                             // If sign in fails, display a message to the user.
@@ -108,7 +114,8 @@ public class Registration extends AppCompatActivity {
                     }
                 });
     }
-    public void save(){
+
+    public void save() {
         ed = sPref.edit();
         ed.putInt("USER_ID", email.getText().toString().hashCode());
         ed.commit();

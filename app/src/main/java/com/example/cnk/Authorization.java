@@ -91,7 +91,8 @@ public class Authorization extends AppCompatActivity implements Serializable {
         String email = edtEmail.getText().toString();
         String pass = edtPass.getText().toString();
         if (TextUtils.isEmpty(email) || TextUtils.isEmpty(pass)) {
-            Toast.makeText(Authorization.this, "Fields are empty", Toast.LENGTH_LONG).show();
+            Toast.makeText(Authorization.this, "Заполните поля", Toast.LENGTH_LONG).show();
+            prBar.setVisibility(ProgressBar.INVISIBLE);
         } else {
             mAuth.signInWithEmailAndPassword(email, pass)
                     .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
