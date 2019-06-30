@@ -8,16 +8,33 @@
     android:background="@color/backGround"
     tools:context=".MainActivity">
 
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        style="@style/ToolBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/backForDialogsWindowItem"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/tvTollBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Диалог"
+            android:textAlignment="textStart"
+            android:textColor="@color/white"
+            android:textSize="22dp" />
+    </android.support.v7.widget.Toolbar>
 
     <LinearLayout
         android:id="@+id/linearLayout4"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/toolbar">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recyclerMsg"
@@ -59,8 +76,9 @@
             android:layout_height="wrap_content"
             android:background="@color/backForDialogsWindowItem"
             android:text="@string/btnSend"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:textColor="@color/white"
-            android:textSize="24dp" />
+            android:textSize="25dp" />
     </LinearLayout>
 
     <ImageButton

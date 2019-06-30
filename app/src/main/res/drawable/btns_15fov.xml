@@ -15,7 +15,7 @@
 
         <path
             android:pathData="M0 0V33H118V0"
-            android:fillColor="#45494E"
+            android:fillColor="@color/backForDialogsWindowItem"
             />
 
         <path

@@ -10,6 +10,7 @@ import android.support.design.widget.BottomSheetBehavior;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -43,19 +44,22 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
     String currentUsernickname, currentWithUserHashId, allCountMessages;
     SharedPreferences.Editor ed;
     int i = 0;
+    private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dialogs_window);
+
         try {
             startService(new Intent(getApplicationContext(), MessageNotifficationService.class));
-            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.backForDialogsWindowItem)));
             sPref = getSharedPreferences("Saves", MODE_PRIVATE);
             takeUserNick();
             loadText();
             View bottomSheet = findViewById(R.id.bottomSht);
             mBottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
+            toolbar = findViewById(R.id.toolbar);
+            setSupportActionBar(toolbar);
             name = findViewById(R.id.name);
             save = findViewById(R.id.save);
             dialog = findViewById(R.id.addDialog);
@@ -196,8 +200,10 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
                     if (mBottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
                         addDialog();
                         mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-                    } else
+                    } else {
                         mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                        addDialog();
+                    }
                 }
 
             });
@@ -320,6 +326,16 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
                 myRef.child(currentWithUserHashId).child("dialogs_info").child("allCountMessages").child(currentUsernickname).setValue("0");
                 myRef.child(currentWithUserHashId).child("dialogs_info").child("lastReadedMessage").child(currentUsernickname).setValue("0");
                 //pr1 = true;
+                ed = sPref.edit();
+                ed.putString("CurrentDialogName", name.getText().toString());
+                ed.putString("CurrentWithUserHashId", dataSnapshot.getKey());
+                Log.d("aadfsdfsfsdf", dataSnapshot.getKey());
+                ed.putInt("countReadedMsgs", 0);
+                ed.commit();
+                stopService(new Intent(getApplicationContext(), MessageNotifficationService.class));
+                finish();
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                startActivity(intent);
                 name.setText("");
                 mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
 

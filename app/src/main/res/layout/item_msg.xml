@@ -5,26 +5,19 @@
     android:layout_height="wrap_content">
 
 
-    <android.support.v7.widget.CardView
-        android:id="@+id/cardView"
+    <TextView
+        android:id="@+id/messageItem"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_gravity="left"
         android:layout_margin="5dp"
-        android:padding="4dp"
-        app:cardBackgroundColor="#525A6D">
-
-        <TextView
-            android:id="@+id/messageItem"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="left"
-            android:maxWidth="300dp"
-            android:padding="8dp"
-            android:text="Text"
-            android:textColor="@color/white"
-            android:textSize="24dp" />
-
-    </android.support.v7.widget.CardView>
+        android:background="@drawable/left_rounded_message"
+        android:maxWidth="300dp"
+        android:padding="8dp"
+        android:text="Text"
+        android:textColor="@color/white"
+        android:textSize="24dp" />
 
 
 </RelativeLayout>

@@ -3,9 +3,27 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:background="@color/backGround"
     android:layout_height="match_parent"
+    android:background="@color/backGround"
     tools:context=".Authorization">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        style="@style/ToolBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/backForDialogsWindowItem"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
+            android:text="Регистрация"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textSize="22dp" />
+    </android.support.v7.widget.Toolbar>
 
     <LinearLayout
         android:id="@+id/linearLayout"
@@ -15,7 +33,7 @@
         android:padding="25dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/toolbar">
 
 
         <EditText
@@ -25,7 +43,8 @@
             android:layout_weight="1"
             android:ems="10"
             android:hint="email"
-            android:inputType="textEmailAddress" />
+            android:inputType="textEmailAddress"
+            android:textColor="@color/white" />
 
         <EditText
             android:id="@+id/edtPass2"
@@ -34,15 +53,19 @@
             android:layout_weight="1"
             android:ems="10"
             android:hint="password"
-            android:inputType="textPassword" />
+            android:inputType="textPassword"
+            android:textColor="@color/white" />
 
         <Button
             android:id="@+id/btnREG"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/backForDialogsWindowItem"
             android:layout_weight="1"
-            android:text="Registration" />
+            android:background="@drawable/button_10deegres"
+            android:text="Зарегистрироваться"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textColor="@color/white"
+            android:textSize="22dp" />
 
         <TextView
             android:id="@+id/edtRegistration"
@@ -52,6 +75,7 @@
             android:layout_marginTop="30dp"
             android:text="Уже есть аккаунт?"
             android:textAlignment="center"
+            android:textColor="@color/white"
             android:textSize="25dp" />
     </LinearLayout>
 

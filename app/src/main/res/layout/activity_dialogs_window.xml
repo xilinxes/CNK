@@ -10,17 +10,39 @@
     android:orientation="vertical"
     tools:context=".DialogsWindow">
 
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            style="@style/ToolBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/backForDialogsWindowItem"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="textStart"
+                android:text="Сообщения"
+                android:textColor="@color/white"
+                android:textSize="22dp" />
+        </android.support.v7.widget.Toolbar>
+    </android.support.design.widget.AppBarLayout>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/dialogs"
         android:layout_width="match_parent"
+        android:layout_marginTop="60dp"
         android:layout_height="match_parent"
         android:layout_weight="1"></android.support.v7.widget.RecyclerView>
 
     <android.support.v4.widget.NestedScrollView
         android:id="@+id/bottomSht"
         android:layout_width="match_parent"
-        android:layout_height="520dp"
+        android:layout_height="wrap_content"
         android:background="@color/backGround"
         app:behavior_hideable="true"
         app:behavior_peekHeight="48dp"
@@ -46,7 +68,7 @@
                     android:text="Добавить диалог "
                     android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:textColor="@color/white"
-                    android:textSize="30dp" />
+                    android:textSize="25dp" />
 
                 <AutoCompleteTextView
                     android:id="@+id/name"
@@ -66,14 +88,15 @@
                 android:id="@+id/save"
                 android:layout_width="180dp"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="420dp"
+                android:layout_marginBottom="30dp"
                 android:background="@drawable/btns_15fov"
                 android:text="Добавить"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                 android:textColor="@color/white"
-                android:textSize="30dp"
+                android:textSize="25dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginTop="350dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/lin" />
 

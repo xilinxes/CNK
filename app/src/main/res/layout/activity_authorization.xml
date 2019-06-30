@@ -6,6 +6,23 @@
     android:background="@color/backGround"
     android:layout_height="match_parent"
     tools:context=".Authorization">
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        style="@style/ToolBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/backForDialogsWindowItem"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
+            android:text="Вход"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textSize="22dp" />
+    </android.support.v7.widget.Toolbar>
 
     <LinearLayout
         android:id="@+id/linearLayout3"
@@ -15,12 +32,13 @@
         android:padding="25dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/toolbar">
 
 
         <EditText
             android:id="@+id/edtEmail2"
             android:layout_width="match_parent"
+            android:textColor="@color/white"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:ems="10"
@@ -34,6 +52,7 @@
             android:layout_weight="1"
             android:ems="10"
             android:hint="password"
+            android:textColor="@color/white"
             android:inputType="textPassword" />
 
         <Button
@@ -41,8 +60,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@color/backForDialogsWindowItem"
-            android:text="Log in" />
+            android:background="@drawable/button_10deegres"
+            android:textColor="@color/white"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textSize="22dp"
+            android:text="Войти" />
 
         <TextView
             android:id="@+id/edtRegistration"
@@ -50,6 +72,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="30dp"
+            android:textColor="@color/white"
             android:text="Зарегистрироваться"
             android:textAlignment="center"
             android:textSize="25dp" />

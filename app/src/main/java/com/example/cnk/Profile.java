@@ -1,22 +1,39 @@
 package com.example.cnk;
 
+import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.drawable.ColorDrawable;
 import android.opengl.Visibility;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.WindowDecorActionBar;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
+import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,13 +49,15 @@ import com.google.firebase.database.ValueEventListener;
 public class Profile extends AppCompatActivity {
     TextView nicknameTv;
     EditText name, surname, nickname;
-    Button save, dialogs, signout;
+    Button save, dialogs;
     String userID;
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     DatabaseReference myRef = database.getReference("Users");
     SharedPreferences sPref;
     ProgressBar prBar;
     SharedPreferences.Editor ed;
+    ImageView imageView;
+    Toolbar toolbar;
     Boolean readyToFinish = false, checkFOrProfile = false;
     private FirebaseAuth mAuth;
     private DatabaseReference users = database.getReference("Users");
@@ -50,9 +69,11 @@ public class Profile extends AppCompatActivity {
         setContentView(R.layout.activity_profile);
         prBar = findViewById(R.id.Bar);
         prBar.setVisibility(ProgressBar.VISIBLE);
-        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.backForDialogsWindowItem)));
+        toolbar =  findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         sPref = getSharedPreferences("Saves", MODE_PRIVATE);
-        signout = findViewById(R.id.btnSignOut);
+        imageView = (ImageView) findViewById(R.id.ImageView);
+        circleImageView();
         nicknameTv = findViewById(R.id.nicknameTv);
         loadText();
         name = findViewById(R.id.name);
@@ -94,21 +115,6 @@ public class Profile extends AppCompatActivity {
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
-            }
-        });
-
-        signout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ed = sPref.edit();
-                ed.putString("Nickname", "");
-                ed.putString("Name", "");
-                ed.putString("Surname", "");
-                ed.putBoolean("check", false);
-                ed.commit();
-                FirebaseAuth.getInstance().signOut();
-                finish();
-                startActivity(new Intent(getApplicationContext(), Authorization.class));
             }
         });
 
@@ -199,6 +205,7 @@ public class Profile extends AppCompatActivity {
 
     }
 
+
     void loadText() {
         userID = String.valueOf(sPref.getInt("USER_ID", 1));
     }
@@ -238,7 +245,7 @@ public class Profile extends AppCompatActivity {
 
     private void openQuitDialog() {
         AlertDialog.Builder quitDialog = new AlertDialog.Builder(new ContextThemeWrapper(this,R.style.CustomAlertDialog));
-        quitDialog.setTitle("Выйти?");
+        quitDialog.setTitle("Закрыть приложение?");
 
         quitDialog.setNegativeButton("Нет", new DialogInterface.OnClickListener() {
             @Override
@@ -256,5 +263,55 @@ public class Profile extends AppCompatActivity {
         });
 
         quitDialog.show();
+    }
+
+    private void openSignoutDialog() {
+        AlertDialog.Builder signOutDialog = new AlertDialog.Builder(new ContextThemeWrapper(this,R.style.CustomAlertDialog));
+        signOutDialog.setTitle("Выйти из аккаунта?");
+
+        signOutDialog.setNegativeButton("Нет", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // TODO Auto-generated method stub
+            }
+        });
+        signOutDialog.setPositiveButton("Да", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // TODO Auto-generated method stub
+                ed = sPref.edit();
+                ed.putString("Nickname", "");
+                ed.putString("Name", "");
+                ed.putString("Surname", "");
+                ed.putBoolean("check", false);
+                ed.commit();
+                FirebaseAuth.getInstance().signOut();
+                finish();
+                startActivity(new Intent(getApplicationContext(), Authorization.class));
+            }
+        });
+
+        signOutDialog.show();
+    }
+
+    public void circleImageView(){
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.img);
+        RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(getResources(), bitmap);
+        roundedBitmapDrawable.setCircular(true);
+        imageView.setImageDrawable(roundedBitmapDrawable);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.signout_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId()==R.id.signout){
+            openSignoutDialog();
+        }
+        return true;
     }
 }

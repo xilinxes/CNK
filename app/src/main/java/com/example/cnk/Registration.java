@@ -6,6 +6,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -32,6 +33,7 @@ public class Registration extends AppCompatActivity {
     private EditText email, pass;
     private TextView vxod;
     private boolean check;
+    private Toolbar toolbar;
     private DatabaseReference users = database.getReference("Users");
 
     @Override
@@ -44,8 +46,9 @@ public class Registration extends AppCompatActivity {
             startActivity(new Intent(getApplicationContext(), Profile.class));
         }
         setContentView(R.layout.activity_registration);
-        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.backForDialogsWindowItem)));
         startService(new Intent(this, MessageNotifficationService.class));
+        toolbar =  findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         prBar = findViewById(R.id.progressBar);
         vxod = findViewById(R.id.edtRegistration);
         email = findViewById(R.id.edtEmail2);

@@ -4,4 +4,5 @@
     <string name="editMsg">Ввод сообщения</string>
     <string name="msg_subscribed">MSG_test</string>
     <string name="msg_subscribe_failed">msg_subscribe_failed</string>
+    <string name="signout">Выйти</string>
 </resources>

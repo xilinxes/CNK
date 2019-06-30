@@ -14,12 +14,14 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -54,12 +56,14 @@ public class MainActivity extends AppCompatActivity {
     File localFile = null;
     Handler h = new Handler();
     StorageReference ref;
+    TextView tvTollBar;
     private DataAdapterForMainMessages dataAdapter;
     private Uri selectedImage;
     private int lastReadedMsg = 0, countReadedMsgs = 0;
     private FirebaseAuth mAuth;
     private Boolean ifInput = false;
     private UUID uuidPhoto;
+    private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,8 +71,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         sPref = getSharedPreferences("Saves", MODE_PRIVATE);
         load();
-        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.backForDialogsWindowItem)));
-        getSupportActionBar().setTitle(dialogName);
+        toolbar =  findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        tvTollBar = findViewById(R.id.tvTollBar);
+        tvTollBar.setText(dialogName);
         startService(new Intent(this, MessageService.class));
         mAuth = FirebaseAuth.getInstance();
         storage = FirebaseStorage.getInstance();
@@ -88,7 +94,6 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 dataAdapter.notifyDataSetChanged();
                 h.postDelayed(this, 1000);
-                Log.d("dfafavfasdv", String.valueOf(recMsgs.getLayoutManager().getHeightMode()));
             }
         };
         run.run();
@@ -348,4 +353,10 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
+    @Override
+    protected void onResume() {
+        stopService(new Intent(getApplicationContext(), MessageNotifficationService.class));
+        myRef.child(userID).child("dialogs_info").child("lastReadedMessage").child(dlgnm).setValue(lastReadedMsg);
+        super.onResume();
+    }
 }
