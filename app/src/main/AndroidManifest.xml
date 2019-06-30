@@ -12,7 +12,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".item_right_message"></activity>
 
         <service
             android:name=".MessageNotifficationService"
@@ -29,7 +28,8 @@
         </activity>
         <activity
             android:name=".Profile"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:noHistory="true">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 

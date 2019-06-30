@@ -321,16 +321,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            myRef.child(userID).child("dialogs_info").child("lastReadedMessage").child(dlgnm).setValue(lastReadedMsg);
-            Intent intent = new Intent(this, DialogsWindow.class);
-            finish();
-            startActivity(intent);
-        }
-        return super.onKeyDown(keyCode, event);
-    }
 
     @Override
     protected void onPostResume() {
@@ -358,5 +348,12 @@ public class MainActivity extends AppCompatActivity {
         stopService(new Intent(getApplicationContext(), MessageNotifficationService.class));
         myRef.child(userID).child("dialogs_info").child("lastReadedMessage").child(dlgnm).setValue(lastReadedMsg);
         super.onResume();
+    }
+
+    @Override
+    public void onBackPressed() {
+        myRef.child(userID).child("dialogs_info").child("lastReadedMessage").child(dlgnm).setValue(lastReadedMsg);
+        startActivity(new Intent(this, DialogsWindow.class));
+        overridePendingTransition(R.anim.invert_activity_down_up_close_enter,R.anim.invert_activity_down_up_close_exit);
     }
 }

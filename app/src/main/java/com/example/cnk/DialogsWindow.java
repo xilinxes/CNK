@@ -261,6 +261,7 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
                 finish();
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                 startActivity(intent);
+                overridePendingTransition(R.anim.activity_down_up_close_enter,R.anim.activity_down_up_close_exit);
             }
 
             @Override
@@ -302,8 +303,8 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
         ed = sPref.edit();
         ed.putString("CurrentWithUserHashId", currentWithUserHashId);
         ed.commit();
-        finish();
         startActivity(intent);
+        overridePendingTransition(R.anim.invert_left_in,R.anim.invert_right_out);
     }
 
     public void addDialog() {
@@ -329,13 +330,13 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
                 ed = sPref.edit();
                 ed.putString("CurrentDialogName", name.getText().toString());
                 ed.putString("CurrentWithUserHashId", dataSnapshot.getKey());
-                Log.d("aadfsdfsfsdf", dataSnapshot.getKey());
                 ed.putInt("countReadedMsgs", 0);
                 ed.commit();
                 stopService(new Intent(getApplicationContext(), MessageNotifficationService.class));
                 finish();
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                 startActivity(intent);
+                overridePendingTransition(R.anim.activity_down_up_close_enter,R.anim.activity_down_up_close_exit);
                 name.setText("");
                 mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
 

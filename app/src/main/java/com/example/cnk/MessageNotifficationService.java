@@ -108,7 +108,7 @@ public class MessageNotifficationService extends Service {
                     if (pr) {
                         String userWithName = dataSnapshot.getKey();
                         showNotification(userWithName, nickname, "Вам новое сообщение от " + userWithName);
-                        h.postDelayed(run, 2000);
+                        h.postDelayed(run, 3500);
                     }
                 }
 

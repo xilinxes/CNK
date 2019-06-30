@@ -126,8 +126,8 @@ public class Profile extends AppCompatActivity {
                 }
                 if (readyToFinish&&checkFOrProfile) {
                     Intent intent = new Intent(getApplicationContext(), DialogsWindow.class);
-                    finish();
                     startActivity(intent);
+                    overridePendingTransition(R.anim.right_in,R.anim.left_out);
                 }
             }
         });
@@ -219,8 +219,8 @@ public class Profile extends AppCompatActivity {
                 y2 = event.getY();
                 if ((x2 - x1) < -300 && Math.abs(y2 - y1) < 200 && readyToFinish&&checkFOrProfile) {
                     Intent intent = new Intent(getApplicationContext(), DialogsWindow.class);
-                    finish();
                     startActivity(intent);
+                    overridePendingTransition(R.anim.right_in,R.anim.left_out);
                 }
                 break;
             }
