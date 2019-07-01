@@ -25,6 +25,17 @@
             android:textSize="22dp" />
     </android.support.v7.widget.Toolbar>
 
+
+    <ProgressBar
+        android:id="@+id/prGlideBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="@id/CircleImageView"
+        app:layout_constraintBottom_toBottomOf="@id/CircleImageView"
+        app:layout_constraintStart_toStartOf="@id/CircleImageView"
+        app:layout_constraintEnd_toEndOf="@id/CircleImageView"/>
+
     <ImageView
         android:id="@+id/CircleImageView"
         android:layout_width="150dp"

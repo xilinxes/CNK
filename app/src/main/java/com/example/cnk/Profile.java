@@ -41,7 +41,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.Priority;
 import com.bumptech.glide.load.Key;
+import com.bumptech.glide.request.Request;
+import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
@@ -63,7 +66,7 @@ public class Profile extends AppCompatActivity {
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     DatabaseReference myRef = database.getReference("Users");
     SharedPreferences sPref;
-    ProgressBar prBar;
+    ProgressBar prBar, prGlideBar;
     SharedPreferences.Editor ed;
     ImageView imageView;
     Toolbar toolbar;
@@ -76,6 +79,7 @@ public class Profile extends AppCompatActivity {
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
+        prGlideBar = findViewById(R.id.prGlideBar);
         prBar = findViewById(R.id.Bar);
         prBar.setVisibility(ProgressBar.VISIBLE);
         toolbar =  findViewById(R.id.toolbar);
@@ -309,12 +313,14 @@ public class Profile extends AppCompatActivity {
     }
 
     public void circleImageView(){
-        GlideApp.with(this)
+     /*   GlideApp.with(this)
                 .load("gs://cnkfirebaseproject.appspot.com/dialogs/2027918186/NePidor/a3922746-afb0-4cfa-a042-810310eece7f")
                 .circleCrop()
                 .placeholder(circ)
-                .getDownloadOnlyRequest()
-                .into(imageView);
+                .into(imageView);*/
+        RequestOptions options = new RequestOptions()
+                .centerCrop().priority(Priority.HIGH);
+        new GlideImageLoader(imageView,prGlideBar).load("gs://cnkfirebaseproject.appspot.com/dialogs/2027918186/NePidor/a3922746-afb0-4cfa-a042-810310eece7f",options);
     }
 
     @Override
