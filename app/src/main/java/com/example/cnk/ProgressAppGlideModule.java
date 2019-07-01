@@ -13,7 +13,6 @@ import com.bumptech.glide.module.AppGlideModule;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.WeakHashMap;
-import java.util.logging.LogRecord;
 
 import okhttp3.HttpUrl;
 import okhttp3.Interceptor;

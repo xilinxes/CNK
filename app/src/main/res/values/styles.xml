@@ -5,7 +5,7 @@
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/backForDialogsWindowItem</item>
         <item name="colorPrimaryDark">@color/backForDialogsWindowItem</item>
-        <item name="colorAccent">@color/white</item>
+        <item name="colorAccent">@color/colorAccent</item>
     </style>
 
     <style name="CustomAlertDialog" parent="Theme.MaterialComponents.Dialog.Alert">

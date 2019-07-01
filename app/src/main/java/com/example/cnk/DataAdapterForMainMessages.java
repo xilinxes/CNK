@@ -2,16 +2,22 @@ package com.example.cnk;
 
 import android.content.Context;
 import android.graphics.drawable.Animatable;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v4.widget.CircularProgressDrawable;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.bumptech.glide.Priority;
 import com.bumptech.glide.annotation.GlideModule;
+import com.bumptech.glide.request.RequestOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -189,34 +195,52 @@ public class DataAdapterForMainMessages extends RecyclerView.Adapter<RecyclerVie
 
     public class ViewHlderForImages extends RecyclerView.ViewHolder {
         private ImageView imageLeft;
+        private ProgressBar progressBar;
+        private Uri url;
 
         public ViewHlderForImages(View itemView) {
             super(itemView);
             imageLeft = itemView.findViewById(R.id.itemImageLeft);
+            progressBar = itemView.findViewById(R.id.progressLeftBar);
         }
 
         public void showImage(StorageReference ref) {
-            GlideApp.with(context)
-                    .load(ref).placeholder(circ)
-                    .into(imageLeft);
+            ref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                @Override
+                public void onSuccess(Uri uri) {
+                    url = uri;
+                    RequestOptions options = new RequestOptions()
+                            .centerCrop().priority(Priority.HIGH);
+                    new GlideImageLoader(imageLeft,progressBar).load(String.valueOf(url),options);
+                }
+            });
+
+
         }
+
 
     }
 
     public class ViewHlderForImagesRight extends RecyclerView.ViewHolder {
         private ImageView imageRight;
-
+        private Uri url;
+        private ProgressBar progressBar;
         public ViewHlderForImagesRight(View itemView) {
             super(itemView);
             imageRight = itemView.findViewById(R.id.itemImageRight);
+            progressBar = itemView.findViewById(R.id.progressRightBar);
         }
 
         public void showImageRight(StorageReference ref) {
-
-            GlideApp.with(context)
-                    .load(ref).placeholder(circ)
-                    .into(imageRight);
-
+            ref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                @Override
+                public void onSuccess(Uri uri) {
+                    url = uri;
+                    RequestOptions options = new RequestOptions()
+                            .centerCrop().priority(Priority.HIGH);
+                    new GlideImageLoader(imageRight,progressBar).load(String.valueOf(url),options);
+                }
+            });
         }
 
     }

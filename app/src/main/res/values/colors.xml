@@ -2,7 +2,7 @@
 <resources>
     <color name="colorPrimary">#008577</color>
     <color name="colorPrimaryDark">#00574B</color>
-    <color name="colorAccent">#D81B60</color>
+    <color name="colorAccent">#FFFFFF</color>
     <color name="red">#DD0063F8</color>
     <color name="backgroundForAddPhotoBtn">#00000000</color>
     <color name="backGround">#5E5D5D</color>

@@ -31,18 +31,19 @@
         style="?android:attr/progressBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="@id/CircleImageView"
         app:layout_constraintBottom_toBottomOf="@id/CircleImageView"
+        app:layout_constraintEnd_toEndOf="@id/CircleImageView"
         app:layout_constraintStart_toStartOf="@id/CircleImageView"
-        app:layout_constraintEnd_toEndOf="@id/CircleImageView"/>
+        app:layout_constraintTop_toTopOf="@id/CircleImageView" />
 
     <ImageView
         android:id="@+id/CircleImageView"
         android:layout_width="150dp"
         android:layout_height="150dp"
-        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        android:layout_marginTop="16dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
 
     <TextView
@@ -65,15 +66,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:hint="Никнейм"
         android:padding="5dp"
-        app:layout_constraintTop_toBottomOf="@id/CircleImageView"
         android:textColor="@color/white"
         android:textSize="25dp"
         android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/CircleImageView" />
 
     <EditText
         android:id="@+id/name"
@@ -103,12 +105,12 @@
 
     <Button
         android:id="@+id/save"
-        android:layout_width="180dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="28dp"
+        android:layout_marginStart="100dp"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="28dp"
-        android:background="@drawable/btns_15fov"
+        android:layout_marginEnd="100dp"
+        android:background="@drawable/rounded_bts_for_profile"
         android:padding="5dp"
         android:text="Сохранить"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
@@ -124,8 +126,8 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="25dp"
-        android:background="@drawable/btns_15fov"
-        android:padding="10dp"
+        android:background="@drawable/rounded_bts_for_profile"
+        android:padding="5dp"
         android:text="Сообщения"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:textColor="@color/white"

@@ -54,7 +54,6 @@ public class MainActivity extends AppCompatActivity {
     String dialogName = "Диалог с ";
     SharedPreferences.Editor ed;
     File localFile = null;
-    Handler h = new Handler();
     StorageReference ref;
     TextView tvTollBar;
     private DataAdapterForMainMessages dataAdapter;
@@ -88,15 +87,7 @@ public class MainActivity extends AppCompatActivity {
         dataAdapter = new DataAdapterForMainMessages(this, messages, name, userID);
         recMsgs.setLayoutManager(new LinearLayoutManager(this));
         recMsgs.setAdapter(dataAdapter);
-        Runnable run = new Runnable() {
 
-            @Override
-            public void run() {
-                dataAdapter.notifyDataSetChanged();
-                h.postDelayed(this, 1000);
-            }
-        };
-        run.run();
         recMsgs.smoothScrollToPosition(countReadedMsgs);
 
         myRef.orderByChild("nickname").equalTo(dlgnm).addChildEventListener(new ChildEventListener() {
@@ -272,7 +263,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Bitmap bitmap = null;
+       // Bitmap bitmap = null;
 
 
         switch (requestCode) {
@@ -280,11 +271,11 @@ public class MainActivity extends AppCompatActivity {
                 if (resultCode == RESULT_OK) {
                     selectedImage = data.getData();
                     // ImageView imageView = (ImageView) findViewById(R.id.imgvPhoto);
-                    try {
+                   /* try {
                         bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImage);
                     } catch (IOException e) {
                         e.printStackTrace();
-                    }
+                    }*/
                    /* Drawable image = new BitmapDrawable(bitmap);
                     editMsg.setCompoundDrawablesWithIntrinsicBounds(image, null, null, null);
                     imageView.setImageBitmap(bitmap);*/
@@ -353,6 +344,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         myRef.child(userID).child("dialogs_info").child("lastReadedMessage").child(dlgnm).setValue(lastReadedMsg);
+        finish();
         startActivity(new Intent(this, DialogsWindow.class));
         overridePendingTransition(R.anim.invert_activity_down_up_close_enter,R.anim.invert_activity_down_up_close_exit);
     }

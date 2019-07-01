@@ -86,11 +86,6 @@ public class Profile extends AppCompatActivity {
         setSupportActionBar(toolbar);
         sPref = getSharedPreferences("Saves", MODE_PRIVATE);
         imageView = (ImageView) findViewById(R.id.CircleImageView);
-        circ = new CircularProgressDrawable(this);
-        circ.setStrokeWidth(15f);
-        circ.setColorSchemeColors(Color.WHITE);
-        circ.setCenterRadius(45f);
-        circ.start();
         circleImageView();
         nicknameTv = findViewById(R.id.nicknameTv);
         loadText();
@@ -319,8 +314,8 @@ public class Profile extends AppCompatActivity {
                 .placeholder(circ)
                 .into(imageView);*/
         RequestOptions options = new RequestOptions()
-                .centerCrop().priority(Priority.HIGH);
-        new GlideImageLoader(imageView,prGlideBar).load("gs://cnkfirebaseproject.appspot.com/dialogs/2027918186/NePidor/a3922746-afb0-4cfa-a042-810310eece7f",options);
+                .centerCrop().circleCrop().priority(Priority.HIGH);
+        new GlideImageLoader(imageView,prGlideBar).load("https://images.wallpaperscraft.com/image/leopard_color_spotted_black_and_white_52353_1920x1080.jpg",options);
     }
 
     @Override

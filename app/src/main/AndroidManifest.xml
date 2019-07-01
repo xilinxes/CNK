@@ -16,7 +16,7 @@
         <service
             android:name=".MessageNotifficationService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true"/>
 
         <activity android:name=".DialogsWindow"
             android:noHistory="true">
@@ -66,8 +66,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity"
-            android:noHistory="true">
+        <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
