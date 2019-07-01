@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
@@ -20,6 +21,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
+import android.support.v4.widget.CircularProgressDrawable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.WindowDecorActionBar;
 import android.support.v7.widget.Toolbar;
@@ -38,6 +40,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.Key;
+import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -45,10 +50,14 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.mikhaellopez.circularimageview.CircularImageView;
+
+import java.security.MessageDigest;
 
 public class Profile extends AppCompatActivity {
     TextView nicknameTv;
     EditText name, surname, nickname;
+    CircularProgressDrawable circ;
     Button save, dialogs;
     String userID;
     FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -72,7 +81,12 @@ public class Profile extends AppCompatActivity {
         toolbar =  findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         sPref = getSharedPreferences("Saves", MODE_PRIVATE);
-        imageView = (ImageView) findViewById(R.id.ImageView);
+        imageView = (ImageView) findViewById(R.id.CircleImageView);
+        circ = new CircularProgressDrawable(this);
+        circ.setStrokeWidth(15f);
+        circ.setColorSchemeColors(Color.WHITE);
+        circ.setCenterRadius(45f);
+        circ.start();
         circleImageView();
         nicknameTv = findViewById(R.id.nicknameTv);
         loadText();
@@ -210,7 +224,7 @@ public class Profile extends AppCompatActivity {
         userID = String.valueOf(sPref.getInt("USER_ID", 1));
     }
 
-
+/*
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
@@ -231,7 +245,7 @@ public class Profile extends AppCompatActivity {
 
         }
         return false;
-    }
+    }*/
 
     @Override
     protected void onDestroy() {
@@ -295,10 +309,12 @@ public class Profile extends AppCompatActivity {
     }
 
     public void circleImageView(){
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.img);
-        RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(getResources(), bitmap);
-        roundedBitmapDrawable.setCircular(true);
-        imageView.setImageDrawable(roundedBitmapDrawable);
+        GlideApp.with(this)
+                .load("gs://cnkfirebaseproject.appspot.com/dialogs/2027918186/NePidor/a3922746-afb0-4cfa-a042-810310eece7f")
+                .circleCrop()
+                .placeholder(circ)
+                .getDownloadOnlyRequest()
+                .into(imageView);
     }
 
     @Override

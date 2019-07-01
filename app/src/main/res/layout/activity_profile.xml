@@ -26,7 +26,7 @@
     </android.support.v7.widget.Toolbar>
 
     <ImageView
-        android:id="@+id/ImageView"
+        android:id="@+id/CircleImageView"
         android:layout_width="150dp"
         android:layout_height="150dp"
         app:layout_constraintTop_toBottomOf="@id/toolbar"
@@ -57,7 +57,7 @@
         android:layout_marginEnd="16dp"
         android:hint="Никнейм"
         android:padding="5dp"
-        app:layout_constraintTop_toBottomOf="@id/ImageView"
+        app:layout_constraintTop_toBottomOf="@id/CircleImageView"
         android:textColor="@color/white"
         android:textSize="25dp"
         android:visibility="visible"

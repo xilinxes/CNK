@@ -12,6 +12,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -43,6 +44,7 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
     Button dialog, save;
     String currentUsernickname, currentWithUserHashId, allCountMessages;
     SharedPreferences.Editor ed;
+    private double x1, x2, y1, y2;
     int i = 0;
     private Toolbar toolbar;
 
@@ -76,6 +78,7 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
                 public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                     String x = String.valueOf(dataSnapshot.getKey());
                     messages.add(x);
+                    countUnreadedMsgs.add("");
                     myRef.addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -86,12 +89,11 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
                                 res = Integer.parseInt(allCountMessages) - Integer.parseInt(lastReadedMessage.get(i));
                             } catch (NumberFormatException e) {
                                 res = 0;
-                                Log.d("check3.0", "---");
                             }
                             if (res == 0) {
-                                countUnreadedMsgs.add("");
+                                countUnreadedMsgs.set(i,"");
                             } else {
-                                countUnreadedMsgs.add(String.valueOf(res));
+                                countUnreadedMsgs.set(i,String.valueOf(res));
                             }
 
                             if (i < messages.size() - 1) {
@@ -363,4 +365,5 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
             }
         });
     }
+
 }
