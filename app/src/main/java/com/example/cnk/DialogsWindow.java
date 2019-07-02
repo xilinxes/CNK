@@ -46,7 +46,7 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
     String currentUsernickname, currentWithUserHashId, allCountMessages;
     SharedPreferences.Editor ed;
     private double x1, x2, y1, y2;
-    int i = 0, j = 0, photo = -1, datachangedphoto = 0;
+    int i = 0, j = 0, photo = 0, datachangedphoto = 0;
     private Toolbar toolbar;
 
     @Override
@@ -66,10 +66,11 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
         dialog = findViewById(R.id.addDialog);
         recMsgs = (RecyclerView) findViewById(R.id.dialogs);
         recMsgs.setLayoutManager(new LinearLayoutManager(this));
-        final DataAdapter dataAdapter = new DataAdapter(this, messages, countUnreadedMsgs, avatarki,this);
+        final DataAdapter dataAdapter = new DataAdapter(this, messages, countUnreadedMsgs, avatarki, this);
         recMsgs.setAdapter(dataAdapter);
         adapter = new ArrayAdapter<>(this, R.layout.drop_down_spinner, baseOfNicks);
         name.setAdapter(adapter);
+
 
 
         myRef.child(userID).child("dialogs").addChildEventListener(new ChildEventListener() {
@@ -78,51 +79,41 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
                 String x = String.valueOf(dataSnapshot.getKey());
                 messages.add(x);
                 countUnreadedMsgs.add("");
-                avatarki.add("");
-                photo++;
-                myRef.orderByChild("nickname").equalTo(messages.get(photo)).addChildEventListener(new ChildEventListener() {
+                myRef.orderByChild("nickname").equalTo(messages.get(messages.size()-1)).addValueEventListener(new ValueEventListener() {
                     @Override
-                    public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                        avatarki.set(j, dataSnapshot.getKey());
-                        if (j < messages.size() - 1) {
-                            j++;
-                        }
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        avatarki.add("");
+                        String x = String.valueOf(dataSnapshot.getValue());
+                        x = x.substring(1,x.indexOf('='));
+                        avatarki.set(photo, x);
 
-                        myRef.addValueEventListener(new ValueEventListener() {
+                        myRef.child(avatarki.get(photo)).child("avatarka").addValueEventListener(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                                avatarki.set(datachangedphoto, dataSnapshot.child(avatarki.get(datachangedphoto)).child("avatarka").getValue(String.class));
+                                avatarki.set(datachangedphoto, dataSnapshot.getValue(String.class));
+
                                 if (avatarki.get(datachangedphoto) == null)
                                     avatarki.set(datachangedphoto, "emptyPhoto");
-
+                                Log.d("dsssssss", String.valueOf(avatarki.get(datachangedphoto)) + "     " + datachangedphoto);
 
                                 if (datachangedphoto < messages.size() - 1) {
                                     datachangedphoto++;
+
                                 }
                                 dataAdapter.notifyDataSetChanged();
 
                             }
+
 
                             @Override
                             public void onCancelled(@NonNull DatabaseError databaseError) {
 
                             }
                         });
-                    }
-
-                    @Override
-                    public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-                    }
-
-                    @Override
-                    public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
-                    }
-
-                    @Override
-                    public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                        if (photo < messages.size() - 1) {
+                            photo++;
+                        }
 
                     }
 
@@ -131,7 +122,8 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
 
                     }
                 });
-                myRef.addValueEventListener(new ValueEventListener() {
+
+               /* myRef.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         allCountMessages = String.valueOf(dataSnapshot.child(userID).child("dialogs_info").child("allCountMessages").child(messages.get(i)).getValue());
@@ -151,49 +143,20 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
                         if (i < messages.size() - 1) {
                             i++;
                         }
-                       // dataAdapter.notifyDataSetChanged();
+                        //dataAdapter.notifyDataSetChanged();
                     }
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError databaseError) {
 
                     }
-                });
+                });*/
 
             }
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                myRef.addValueEventListener(new ValueEventListener() {
-                    int check = 0;
 
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        for (check = 0; check < messages.size(); check++) {
-                            allCountMessages = String.valueOf(dataSnapshot.child(userID).child("dialogs_info").child("allCountMessages").child(messages.get(check)).getValue());
-                            lastReadedMessage.set(check, String.valueOf(dataSnapshot.child(userID).child("dialogs_info").child("lastReadedMessage").child(messages.get(check)).getValue()));
-                            int res = 0;
-                            try {
-                                res = Integer.parseInt(allCountMessages) - Integer.parseInt(lastReadedMessage.get(check));
-                            } catch (NumberFormatException e) {
-                                res = 0;
-                                Log.d("check3.0", "---");
-                            } finally {
-                                if (res == 0) {
-                                    countUnreadedMsgs.add("");
-                                } else {
-                                    countUnreadedMsgs.set(check, String.valueOf(res));
-                                }
-                            }
-                        }
-                        dataAdapter.notifyDataSetChanged();
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                    }
-                });
             }
 
 
@@ -219,12 +182,14 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 String nick = dataSnapshot.getValue(String.class);
                 baseOfNicks.add(nick);
-                dataAdapter.notifyDataSetChanged();
+                adapter.notifyDataSetChanged();
             }
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
+                String nick = dataSnapshot.getValue(String.class);
+                baseOfNicks.add(nick);
+                adapter.notifyDataSetChanged();
             }
 
             @Override
@@ -242,6 +207,39 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
 
             }
         });
+
+        myRef.child(userID).child("dialogs_info").addValueEventListener(new ValueEventListener() {
+            int check = 0;
+
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (check = 0; check < messages.size(); check++) {
+                    lastReadedMessage.add("");
+                    allCountMessages = String.valueOf(dataSnapshot.child("allCountMessages").child(messages.get(check)).getValue());
+                    lastReadedMessage.set(check, String.valueOf(dataSnapshot.child("lastReadedMessage").child(messages.get(check)).getValue()));
+                    int res = 0;
+                    try {
+                        res = Integer.parseInt(allCountMessages) - Integer.parseInt(lastReadedMessage.get(check));
+                    } catch (NumberFormatException e) {
+                        res = 0;
+                        Log.d("check3.0", "---");
+                    } finally {
+                        if (res == 0) {
+                            countUnreadedMsgs.add("");
+                        } else {
+                            countUnreadedMsgs.set(check, String.valueOf(res));
+                        }
+                    }
+                }
+                dataAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
 
         save.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -372,7 +370,6 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
                     }
                 }
                 currentWithUserHashId = dataSnapshot.getKey();
-                Log.d("Test", currentUsernickname);
                 String nick = name.getText().toString();
                 myRef.child(userID).child("dialogs").child(name.getText().toString()).setValue(nick);
                 myRef.child(currentWithUserHashId).child("dialogs").child(currentUsernickname).setValue(currentUsernickname);

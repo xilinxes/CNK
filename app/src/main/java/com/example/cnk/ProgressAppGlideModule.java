@@ -2,6 +2,7 @@ package com.example.cnk;
 
 import android.content.Context;
 import android.os.Handler;
+import android.os.Looper;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.Registry;
@@ -13,6 +14,7 @@ import com.bumptech.glide.module.AppGlideModule;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.WeakHashMap;
+import java.util.logging.LogRecord;
 
 import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
@@ -75,13 +77,14 @@ public class ProgressAppGlideModule extends AppGlideModule {
     }
 
     private static class DispatchingProgressListener implements ProgressAppGlideModule.ResponseProgressListener {
+
         private static final WeakHashMap<String, UIonProgressListener> LISTENERS = new WeakHashMap<>();
         private static final WeakHashMap<String, Long> PROGRESSES = new WeakHashMap<>();
 
         private final Handler handler;
 
         DispatchingProgressListener() {
-            this.handler = new Handler();
+            this.handler = new Handler(Looper.getMainLooper());
         }
 
         static void forget(String url) {

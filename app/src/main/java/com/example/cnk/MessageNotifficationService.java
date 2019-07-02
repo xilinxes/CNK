@@ -47,9 +47,7 @@ public class MessageNotifficationService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        run.run();
-
-
+       // run.run();
     }
 
     @Override
