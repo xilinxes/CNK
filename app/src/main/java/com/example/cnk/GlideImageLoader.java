@@ -45,26 +45,34 @@ public class GlideImageLoader {
             }
         });
 
-        Glide.with(mImageView.getContext())
-                .load(url)
-                .transition(withCrossFade())
-                .apply(options.skipMemoryCache(true))
-                .listener(new RequestListener<Drawable>() {
-                    @Override
-                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                        ProgressAppGlideModule.forget(url);
-                        onFinished();
-                        return false;
-                    }
+        try {
 
-                    @Override
-                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                        ProgressAppGlideModule.forget(url);
-                        onFinished();
-                        return false;
-                    }
-                })
-                .into(mImageView);
+
+            Glide.with(mImageView.getContext())
+                    .load(url)
+                    .transition(withCrossFade())
+                    .apply(options.skipMemoryCache(true))
+                    .listener(new RequestListener<Drawable>() {
+                        @Override
+                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                            ProgressAppGlideModule.forget(url);
+                            onFinished();
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                            ProgressAppGlideModule.forget(url);
+                            onFinished();
+                            return false;
+                        }
+                    })
+                    .into(mImageView);
+
+        }
+        catch (IllegalArgumentException e){
+
+        }
     }
 
 

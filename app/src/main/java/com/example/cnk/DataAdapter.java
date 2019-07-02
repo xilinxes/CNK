@@ -2,29 +2,44 @@ package com.example.cnk;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.Toast;
+
+import com.bumptech.glide.Priority;
+import com.bumptech.glide.request.RequestOptions;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class DataAdapter extends RecyclerView.Adapter<ViewHolder>  {
+public class DataAdapter extends RecyclerView.Adapter<ViewHolder> {
     ArrayList<String> messages;
     ArrayList<String> countUnreadedMsgs;
+    ArrayList<String> avatarki;
     LayoutInflater inflater;
+    FirebaseStorage storage;
+    Uri url;
     private OnNoteListener onNoteListener;
 
 
-    public DataAdapter(Context context, ArrayList<String> messages, ArrayList<String> countUnreadedMsgs, OnNoteListener onNoteListener) {
+    public DataAdapter(Context context, ArrayList<String> messages, ArrayList<String> countUnreadedMsgs, ArrayList<String> avatarki, OnNoteListener onNoteListener) {
         this.messages = messages;
         this.countUnreadedMsgs = countUnreadedMsgs;
+        this.avatarki = avatarki;
         this.inflater = LayoutInflater.from(context);
         this.onNoteListener = onNoteListener;
+        this.storage = FirebaseStorage.getInstance();
     }
 
 
@@ -37,14 +52,29 @@ public class DataAdapter extends RecyclerView.Adapter<ViewHolder>  {
 
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
+    public void onBindViewHolder(@NonNull final ViewHolder viewHolder, int i) {
         try {
             String msg = messages.get(i);
             String countMsgs = countUnreadedMsgs.get(i);
+                if (!avatarki.get(i).equals("emptyPhoto")) {
+                    StorageReference ref = storage.getReferenceFromUrl("gs://cnkfirebaseproject.appspot.com/" + avatarki.get(i));
+                    ref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            url = uri;
+                            RequestOptions options = new RequestOptions()
+                                    .centerCrop().circleCrop().priority(Priority.HIGH);
+                            new GlideImageLoader(viewHolder.avatarka, viewHolder.prBar).load(String.valueOf(url), options);
+                        }
+                    });
+                } else {
+                    RequestOptions options = new RequestOptions()
+                            .centerCrop().circleCrop().priority(Priority.HIGH);
+                    new GlideImageLoader(viewHolder.avatarka, viewHolder.prBar).load("https://np.edu/_resources/images/person-silhouette.png", options);
+                }
             viewHolder.countMsgs.setText(countMsgs);
             viewHolder.msgg.setText(msg);
-        }
-        catch (IndexOutOfBoundsException e){
+        } catch (IndexOutOfBoundsException e) {
 
         }
     }
@@ -54,7 +84,7 @@ public class DataAdapter extends RecyclerView.Adapter<ViewHolder>  {
         return messages.size();
     }
 
-    public interface OnNoteListener{
+    public interface OnNoteListener {
         void onNoteClick(int position);
     }
 

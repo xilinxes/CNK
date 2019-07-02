@@ -18,8 +18,7 @@
             android:enabled="true"
             android:exported="true"/>
 
-        <activity android:name=".DialogsWindow"
-            android:noHistory="true">
+        <activity android:name=".DialogsWindow">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -28,8 +27,7 @@
         </activity>
         <activity
             android:name=".Profile"
-            android:screenOrientation="portrait"
-            android:noHistory="true">
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 

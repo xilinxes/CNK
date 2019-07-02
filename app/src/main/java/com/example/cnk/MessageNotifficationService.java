@@ -54,6 +54,38 @@ public class MessageNotifficationService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        sPref = getSharedPreferences("Saves", MODE_PRIVATE);
+        userId = String.valueOf(sPref.getInt("USER_ID", 1));
+        nickname = sPref.getString("Name", "");
+        myRef.child(userId).child("dialogs_info").child("allCountMessages").addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                if (pr) {
+                    String userWithName = dataSnapshot.getKey();
+                    showNotification(userWithName, nickname, "Вам новое сообщение от " + userWithName);
+                }
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
         return MessageNotifficationService.START_STICKY;
     }
 
@@ -94,39 +126,6 @@ public class MessageNotifficationService extends Service {
 
         @Override
         public void run() {
-            sPref = getSharedPreferences("Saves", MODE_PRIVATE);
-            userId = String.valueOf(sPref.getInt("USER_ID", 1));
-            nickname = sPref.getString("Name", "");
-            myRef.child(userId).child("dialogs_info").child("allCountMessages").addChildEventListener(new ChildEventListener() {
-                @Override
-                public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-                }
-
-                @Override
-                public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                    if (pr) {
-                        String userWithName = dataSnapshot.getKey();
-                        showNotification(userWithName, nickname, "Вам новое сообщение от " + userWithName);
-                        h.postDelayed(run, 3500);
-                    }
-                }
-
-                @Override
-                public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
-                }
-
-                @Override
-                public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                }
-            });
             h.postDelayed(this, 1000);
         }
     };

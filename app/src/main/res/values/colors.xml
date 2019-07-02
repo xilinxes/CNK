@@ -11,4 +11,5 @@
     <color name="white">#FFFFFF</color>
     <color name="right_message">#303541</color>
     <color name="left_message">#525A6D</color>
+    <color name="item_for_dialogs">#797777</color>
 </resources>

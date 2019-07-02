@@ -26,5 +26,4 @@
         app:layout_constraintStart_toStartOf="@id/itemImageRight"
         app:layout_constraintTop_toTopOf="@id/itemImageRight" />
 
-
 </android.support.constraint.ConstraintLayout>

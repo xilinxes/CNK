@@ -36,6 +36,7 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
     DatabaseReference myRef = database.getReference("Users");
     SharedPreferences sPref;
     String userID;
+    ArrayList<String> avatarki = new ArrayList<>();
     ArrayList<String> messages = new ArrayList<>();
     ArrayList<String> countUnreadedMsgs = new ArrayList<>();
     ArrayList<String> baseOfNicks = new ArrayList<>();
@@ -45,173 +46,223 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
     String currentUsernickname, currentWithUserHashId, allCountMessages;
     SharedPreferences.Editor ed;
     private double x1, x2, y1, y2;
-    int i = 0;
+    int i = 0, j = 0, photo = -1, datachangedphoto = 0;
     private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dialogs_window);
-
-        try {
-            startService(new Intent(getApplicationContext(), MessageNotifficationService.class));
-            sPref = getSharedPreferences("Saves", MODE_PRIVATE);
-            takeUserNick();
-            loadText();
-            View bottomSheet = findViewById(R.id.bottomSht);
-            mBottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
-            toolbar = findViewById(R.id.toolbar);
-            setSupportActionBar(toolbar);
-            name = findViewById(R.id.name);
-            save = findViewById(R.id.save);
-            dialog = findViewById(R.id.addDialog);
-            recMsgs = (RecyclerView) findViewById(R.id.dialogs);
-            recMsgs.setLayoutManager(new LinearLayoutManager(this));
-            final DataAdapter dataAdapter = new DataAdapter(this, messages, countUnreadedMsgs, this);
-            recMsgs.setAdapter(dataAdapter);
-            adapter = new ArrayAdapter<>(this, R.layout.drop_down_spinner, baseOfNicks);
-            name.setAdapter(adapter);
+        startService(new Intent(getApplicationContext(), MessageNotifficationService.class));
+        sPref = getSharedPreferences("Saves", MODE_PRIVATE);
+        takeUserNick();
+        loadText();
+        View bottomSheet = findViewById(R.id.bottomSht);
+        mBottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        name = findViewById(R.id.name);
+        save = findViewById(R.id.save);
+        dialog = findViewById(R.id.addDialog);
+        recMsgs = (RecyclerView) findViewById(R.id.dialogs);
+        recMsgs.setLayoutManager(new LinearLayoutManager(this));
+        final DataAdapter dataAdapter = new DataAdapter(this, messages, countUnreadedMsgs, avatarki,this);
+        recMsgs.setAdapter(dataAdapter);
+        adapter = new ArrayAdapter<>(this, R.layout.drop_down_spinner, baseOfNicks);
+        name.setAdapter(adapter);
 
 
-            myRef.child(userID).child("dialogs").addChildEventListener(new ChildEventListener() {
-                @Override
-                public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                    String x = String.valueOf(dataSnapshot.getKey());
-                    messages.add(x);
-                    countUnreadedMsgs.add("");
-                    myRef.addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            allCountMessages = String.valueOf(dataSnapshot.child(userID).child("dialogs_info").child("allCountMessages").child(messages.get(i)).getValue());
-                            lastReadedMessage.add(String.valueOf(dataSnapshot.child(userID).child("dialogs_info").child("lastReadedMessage").child(messages.get(i)).getValue()));
-                            int res;
+        myRef.child(userID).child("dialogs").addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                String x = String.valueOf(dataSnapshot.getKey());
+                messages.add(x);
+                countUnreadedMsgs.add("");
+                avatarki.add("");
+                photo++;
+                myRef.orderByChild("nickname").equalTo(messages.get(photo)).addChildEventListener(new ChildEventListener() {
+                    @Override
+                    public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                        avatarki.set(j, dataSnapshot.getKey());
+                        if (j < messages.size() - 1) {
+                            j++;
+                        }
+
+                        myRef.addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                                avatarki.set(datachangedphoto, dataSnapshot.child(avatarki.get(datachangedphoto)).child("avatarka").getValue(String.class));
+                                if (avatarki.get(datachangedphoto) == null)
+                                    avatarki.set(datachangedphoto, "emptyPhoto");
+
+
+                                if (datachangedphoto < messages.size() - 1) {
+                                    datachangedphoto++;
+                                }
+                                dataAdapter.notifyDataSetChanged();
+
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+                    }
+
+                    @Override
+                    public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+                    }
+
+                    @Override
+                    public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+                myRef.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        allCountMessages = String.valueOf(dataSnapshot.child(userID).child("dialogs_info").child("allCountMessages").child(messages.get(i)).getValue());
+                        lastReadedMessage.add(String.valueOf(dataSnapshot.child(userID).child("dialogs_info").child("lastReadedMessage").child(messages.get(i)).getValue()));
+                        int res;
+                        try {
+                            res = Integer.parseInt(allCountMessages) - Integer.parseInt(lastReadedMessage.get(i));
+                        } catch (NumberFormatException e) {
+                            res = 0;
+                        }
+                        if (res == 0) {
+                            countUnreadedMsgs.set(i, "");
+                        } else {
+                            countUnreadedMsgs.set(i, String.valueOf(res));
+                        }
+
+                        if (i < messages.size() - 1) {
+                            i++;
+                        }
+                       // dataAdapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                myRef.addValueEventListener(new ValueEventListener() {
+                    int check = 0;
+
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        for (check = 0; check < messages.size(); check++) {
+                            allCountMessages = String.valueOf(dataSnapshot.child(userID).child("dialogs_info").child("allCountMessages").child(messages.get(check)).getValue());
+                            lastReadedMessage.set(check, String.valueOf(dataSnapshot.child(userID).child("dialogs_info").child("lastReadedMessage").child(messages.get(check)).getValue()));
+                            int res = 0;
                             try {
-                                res = Integer.parseInt(allCountMessages) - Integer.parseInt(lastReadedMessage.get(i));
+                                res = Integer.parseInt(allCountMessages) - Integer.parseInt(lastReadedMessage.get(check));
                             } catch (NumberFormatException e) {
                                 res = 0;
-                            }
-                            if (res == 0) {
-                                countUnreadedMsgs.set(i,"");
-                            } else {
-                                countUnreadedMsgs.set(i,String.valueOf(res));
-                            }
-
-                            if (i < messages.size() - 1) {
-                                i++;
-                            }
-                            dataAdapter.notifyDataSetChanged();
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                        }
-                    });
-                }
-
-                @Override
-                public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                    myRef.addValueEventListener(new ValueEventListener() {
-                        int check = 0;
-
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            for (check = 0; check < messages.size(); check++) {
-                                allCountMessages = String.valueOf(dataSnapshot.child(userID).child("dialogs_info").child("allCountMessages").child(messages.get(check)).getValue());
-                                lastReadedMessage.set(check, String.valueOf(dataSnapshot.child(userID).child("dialogs_info").child("lastReadedMessage").child(messages.get(check)).getValue()));
-                                int res = 0;
-                                try {
-                                    res = Integer.parseInt(allCountMessages) - Integer.parseInt(lastReadedMessage.get(check));
-                                } catch (NumberFormatException e) {
-                                    res = 0;
-                                    Log.d("check3.0", "---");
-                                } finally {
-                                    if (res == 0) {
-                                        countUnreadedMsgs.add("");
-                                    } else {
-                                        countUnreadedMsgs.set(check, String.valueOf(res));
-                                    }
+                                Log.d("check3.0", "---");
+                            } finally {
+                                if (res == 0) {
+                                    countUnreadedMsgs.add("");
+                                } else {
+                                    countUnreadedMsgs.set(check, String.valueOf(res));
                                 }
                             }
-                            dataAdapter.notifyDataSetChanged();
                         }
+                        dataAdapter.notifyDataSetChanged();
+                    }
 
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                        }
-                    });
-                }
-
-
-                @Override
-                public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
-                }
-
-                @Override
-                public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                }
-            });
+                    }
+                });
+            }
 
 
-            myRef.child("nicknames").addChildEventListener(new ChildEventListener() {
-                @Override
-                public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                    String nick = dataSnapshot.getValue(String.class);
-                    baseOfNicks.add(nick);
-                    dataAdapter.notifyDataSetChanged();
-                }
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
 
-                @Override
-                public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+            }
 
-                }
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
 
-                @Override
-                public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+            }
 
-                }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                @Override
-                public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+            }
+        });
 
-                }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
+        myRef.child("nicknames").addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                String nick = dataSnapshot.getValue(String.class);
+                baseOfNicks.add(nick);
+                dataAdapter.notifyDataSetChanged();
+            }
 
-                }
-            });
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
 
-            save.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+        save.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addDialog();
+            }
+        });
+        dialog.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mBottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+                    addDialog();
+                    mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                } else {
+                    mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
                     addDialog();
                 }
-            });
-            dialog.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mBottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
-                        addDialog();
-                        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-                    } else {
-                        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-                        addDialog();
-                    }
-                }
+            }
 
-            });
-        } catch (Exception e) {
-            Log.d("12345", e.toString());
-        }
+        });
+
     }
 
     void loadText() {
@@ -260,10 +311,10 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
                 //   ed.putString("Nickname",currentUsernickname);
                 ed.commit();
                 stopService(new Intent(getApplicationContext(), MessageNotifficationService.class));
-                finish();
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                 startActivity(intent);
-                overridePendingTransition(R.anim.activity_down_up_close_enter,R.anim.activity_down_up_close_exit);
+                overridePendingTransition(R.anim.activity_down_up_close_enter, R.anim.activity_down_up_close_exit);
+                finish();
             }
 
             @Override
@@ -306,7 +357,8 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
         ed.putString("CurrentWithUserHashId", currentWithUserHashId);
         ed.commit();
         startActivity(intent);
-        overridePendingTransition(R.anim.invert_left_in,R.anim.invert_right_out);
+        overridePendingTransition(R.anim.invert_left_in, R.anim.invert_right_out);
+        finish();
     }
 
     public void addDialog() {
@@ -338,7 +390,8 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
                 finish();
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                 startActivity(intent);
-                overridePendingTransition(R.anim.activity_down_up_close_enter,R.anim.activity_down_up_close_exit);
+                overridePendingTransition(R.anim.activity_down_up_close_enter, R.anim.activity_down_up_close_exit);
+                finish();
                 name.setText("");
                 mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
 

@@ -15,6 +15,7 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.opengl.Visibility;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -46,6 +47,8 @@ import com.bumptech.glide.load.Key;
 import com.bumptech.glide.request.Request;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -53,12 +56,20 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.mikhaellopez.circularimageview.CircularImageView;
 
 import java.security.MessageDigest;
+import java.util.UUID;
+
+import javax.xml.transform.Result;
 
 public class Profile extends AppCompatActivity {
+    static final int GALLERY_REQUEST = 1;
     TextView nicknameTv;
+    FirebaseStorage storage;
     EditText name, surname, nickname;
     CircularProgressDrawable circ;
     Button save, dialogs;
@@ -68,27 +79,34 @@ public class Profile extends AppCompatActivity {
     SharedPreferences sPref;
     ProgressBar prBar, prGlideBar;
     SharedPreferences.Editor ed;
+    StorageReference storageReference;
     ImageView imageView;
     Toolbar toolbar;
     Boolean readyToFinish = false, checkFOrProfile = false;
     private FirebaseAuth mAuth;
     private DatabaseReference users = database.getReference("Users");
     private double x1, x2, y1, y2;
+    private Uri selectedImage;
+    private  Uri url;
+
+
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
+        storage = FirebaseStorage.getInstance();
+        storageReference = storage.getReference();
         prGlideBar = findViewById(R.id.prGlideBar);
         prBar = findViewById(R.id.Bar);
         prBar.setVisibility(ProgressBar.VISIBLE);
-        toolbar =  findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         sPref = getSharedPreferences("Saves", MODE_PRIVATE);
         imageView = (ImageView) findViewById(R.id.CircleImageView);
-        circleImageView();
         nicknameTv = findViewById(R.id.nicknameTv);
         loadText();
+        circleImageView();
         name = findViewById(R.id.name);
         dialogs = findViewById(R.id.dialogs);
         surname = findViewById(R.id.surname);
@@ -99,17 +117,25 @@ public class Profile extends AppCompatActivity {
         ed.putBoolean("check", true);
         ed.commit();
 
+        imageView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+                photoPickerIntent.setType("image/*");
+                startActivityForResult(photoPickerIntent, GALLERY_REQUEST);
+                return true;
+            }
+        });
 
         myRef.child(userID).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(dataSnapshot.child("profileComplete").getValue(String.class).equals("true")){
-                    nicknameTv.setText("Никнейм: "+dataSnapshot.child("nickname").getValue(String.class));
+                if (dataSnapshot.child("profileComplete").getValue(String.class).equals("true")) {
+                    nicknameTv.setText("Никнейм: " + dataSnapshot.child("nickname").getValue(String.class));
                     nickname.setVisibility(View.INVISIBLE);
                     nicknameTv.setVisibility(View.VISIBLE);
                     checkFOrProfile = true;
-                }
-                else {
+                } else {
                     nicknameTv.setVisibility(View.INVISIBLE);
                     nickname.setVisibility(View.VISIBLE);
                 }
@@ -134,13 +160,14 @@ public class Profile extends AppCompatActivity {
         dialogs.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!checkFOrProfile){
+                if (!checkFOrProfile) {
                     Toast.makeText(getApplicationContext(), "Закончите настройку профиля", Toast.LENGTH_LONG).show();
                 }
-                if (readyToFinish&&checkFOrProfile) {
+                if (readyToFinish && checkFOrProfile) {
                     Intent intent = new Intent(getApplicationContext(), DialogsWindow.class);
                     startActivity(intent);
-                    overridePendingTransition(R.anim.right_in,R.anim.left_out);
+                    overridePendingTransition(R.anim.right_in, R.anim.left_out);
+                    finish();
                 }
             }
         });
@@ -148,14 +175,14 @@ public class Profile extends AppCompatActivity {
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(nickname.getText().toString().isEmpty()){
+                if (nickname.getText().toString().isEmpty()) {
                     Toast.makeText(Profile.this, "введите никнейм", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 myRef.orderByChild("nickname").equalTo(nickname.getText().toString()).addChildEventListener(new ChildEventListener() {
                     @Override
                     public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                        if (userID != dataSnapshot.getKey()&&nickname.getVisibility()==View.VISIBLE ) {
+                        if (userID != dataSnapshot.getKey() && nickname.getVisibility() == View.VISIBLE) {
                             Toast.makeText(getApplicationContext(), "никнейм уже занят", Toast.LENGTH_LONG).show();
                             nickname.setText("");
                             users.child("nicknames").child(userID).setValue(nickname.getText().toString());
@@ -257,7 +284,7 @@ public class Profile extends AppCompatActivity {
     }
 
     private void openQuitDialog() {
-        AlertDialog.Builder quitDialog = new AlertDialog.Builder(new ContextThemeWrapper(this,R.style.CustomAlertDialog));
+        AlertDialog.Builder quitDialog = new AlertDialog.Builder(new ContextThemeWrapper(this, R.style.CustomAlertDialog));
         quitDialog.setTitle("Закрыть приложение?");
 
         quitDialog.setNegativeButton("Нет", new DialogInterface.OnClickListener() {
@@ -270,7 +297,6 @@ public class Profile extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // TODO Auto-generated method stub
-
                 finish();
             }
         });
@@ -279,7 +305,7 @@ public class Profile extends AppCompatActivity {
     }
 
     private void openSignoutDialog() {
-        AlertDialog.Builder signOutDialog = new AlertDialog.Builder(new ContextThemeWrapper(this,R.style.CustomAlertDialog));
+        AlertDialog.Builder signOutDialog = new AlertDialog.Builder(new ContextThemeWrapper(this, R.style.CustomAlertDialog));
         signOutDialog.setTitle("Выйти из аккаунта?");
 
         signOutDialog.setNegativeButton("Нет", new DialogInterface.OnClickListener() {
@@ -299,23 +325,37 @@ public class Profile extends AppCompatActivity {
                 ed.putBoolean("check", false);
                 ed.commit();
                 FirebaseAuth.getInstance().signOut();
-                finish();
                 startActivity(new Intent(getApplicationContext(), Authorization.class));
+                finish();
             }
         });
 
         signOutDialog.show();
     }
 
-    public void circleImageView(){
-     /*   GlideApp.with(this)
-                .load("gs://cnkfirebaseproject.appspot.com/dialogs/2027918186/NePidor/a3922746-afb0-4cfa-a042-810310eece7f")
-                .circleCrop()
-                .placeholder(circ)
-                .into(imageView);*/
-        RequestOptions options = new RequestOptions()
+    public void circleImageView() {
+       /* RequestOptions options = new RequestOptions()
                 .centerCrop().circleCrop().priority(Priority.HIGH);
-        new GlideImageLoader(imageView,prGlideBar).load("https://images.wallpaperscraft.com/image/leopard_color_spotted_black_and_white_52353_1920x1080.jpg",options);
+        new GlideImageLoader(imageView, prGlideBar).load("https://images.wallpaperscraft.com/image/leopard_color_spotted_black_and_white_52353_1920x1080.jpg", options);*/
+
+        StorageReference ref = storage.getReferenceFromUrl("gs://cnkfirebaseproject.appspot.com/" + "users/" + userID + "/avatarka/" + userID);
+        ref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                url = uri;
+                RequestOptions options = new RequestOptions()
+                        .centerCrop().circleCrop().priority(Priority.HIGH);
+                new GlideImageLoader(imageView,prGlideBar).load(String.valueOf(url),options);
+            }
+        });
+        ref.getDownloadUrl().addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                RequestOptions options = new RequestOptions()
+                        .centerCrop().circleCrop().priority(Priority.HIGH);
+                new GlideImageLoader(imageView,prGlideBar).load("https://np.edu/_resources/images/person-silhouette.png",options);
+            }
+        });
     }
 
     @Override
@@ -326,9 +366,37 @@ public class Profile extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId()==R.id.signout){
+        if (item.getItemId() == R.id.signout) {
             openSignoutDialog();
         }
         return true;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case GALLERY_REQUEST:
+                if (resultCode == RESULT_OK) {
+                    selectedImage = data.getData();
+                    uploadImage();
+                }
+        }
+
+    }
+    private void uploadImage() {
+
+        if (selectedImage != null) {
+            StorageReference ref = storageReference.child("users/" + userID + "/avatarka/" + userID);
+            ref.putFile(selectedImage).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    myRef.child(userID).child("avatarka").setValue("users/" + userID + "/avatarka/" + userID);
+                    selectedImage = null;
+                    circleImageView();
+                }
+            });
+
+        }
     }
 }

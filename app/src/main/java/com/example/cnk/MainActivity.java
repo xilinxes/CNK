@@ -344,8 +344,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         myRef.child(userID).child("dialogs_info").child("lastReadedMessage").child(dlgnm).setValue(lastReadedMsg);
-        finish();
         startActivity(new Intent(this, DialogsWindow.class));
         overridePendingTransition(R.anim.invert_activity_down_up_close_enter,R.anim.invert_activity_down_up_close_exit);
+        finish();
     }
 }
