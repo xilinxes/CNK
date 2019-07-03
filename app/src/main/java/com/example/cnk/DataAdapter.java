@@ -2,8 +2,10 @@ package com.example.cnk;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,24 +24,28 @@ import com.google.firebase.storage.StorageReference;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.content.Context.MODE_PRIVATE;
+
 
 public class DataAdapter extends RecyclerView.Adapter<ViewHolder> {
     ArrayList<String> messages;
     ArrayList<String> countUnreadedMsgs;
     ArrayList<String> avatarki;
+    ArrayList<Integer> ADAPTER_STATE;
     LayoutInflater inflater;
     FirebaseStorage storage;
     Uri url;
     private OnNoteListener onNoteListener;
 
 
-    public DataAdapter(Context context, ArrayList<String> messages, ArrayList<String> countUnreadedMsgs, ArrayList<String> avatarki, OnNoteListener onNoteListener) {
+    public DataAdapter(Context context, ArrayList<String> messages, ArrayList<String> countUnreadedMsgs, ArrayList<String> avatarki, ArrayList<Integer> ADAPTER_STATE, OnNoteListener onNoteListener) {
         this.messages = messages;
         this.countUnreadedMsgs = countUnreadedMsgs;
         this.avatarki = avatarki;
         this.inflater = LayoutInflater.from(context);
         this.onNoteListener = onNoteListener;
         this.storage = FirebaseStorage.getInstance();
+        this.ADAPTER_STATE = ADAPTER_STATE;
     }
 
 
@@ -56,6 +62,7 @@ public class DataAdapter extends RecyclerView.Adapter<ViewHolder> {
         try {
             String msg = messages.get(i);
             String countMsgs = countUnreadedMsgs.get(i);
+            if (ADAPTER_STATE.get(i) == 0) {
                 if (!avatarki.get(i).equals("emptyPhoto")) {
                     StorageReference ref = storage.getReferenceFromUrl("gs://cnkfirebaseproject.appspot.com/" + avatarki.get(i));
                     ref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
@@ -65,6 +72,8 @@ public class DataAdapter extends RecyclerView.Adapter<ViewHolder> {
                             RequestOptions options = new RequestOptions()
                                     .centerCrop().circleCrop().priority(Priority.HIGH);
                             new GlideImageLoader(viewHolder.avatarka, viewHolder.prBar).load(String.valueOf(url), options);
+
+                            if (viewHolder.avatarka.getDrawable() != null) ;
                         }
                     });
                 } else {
@@ -72,6 +81,7 @@ public class DataAdapter extends RecyclerView.Adapter<ViewHolder> {
                             .centerCrop().circleCrop().priority(Priority.HIGH);
                     new GlideImageLoader(viewHolder.avatarka, viewHolder.prBar).load("https://np.edu/_resources/images/person-silhouette.png", options);
                 }
+            }
             viewHolder.countMsgs.setText(countMsgs);
             viewHolder.msgg.setText(msg);
         } catch (IndexOutOfBoundsException e) {
