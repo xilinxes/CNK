@@ -341,7 +341,7 @@ public class MainActivity extends AppCompatActivity {
             dataAdapter.notifyDataSetChanged();
         }
     }
-
+//
     @Override
     protected void onPostResume() {
         stopService(new Intent(getApplicationContext(), MessageNotifficationService.class));
