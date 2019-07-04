@@ -56,11 +56,12 @@ public class MainActivity extends AppCompatActivity {
     File localFile = null;
     StorageReference ref;
     TextView tvTollBar;
+    LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
     private DataAdapterForMainMessages dataAdapter;
     private Uri selectedImage;
-    private int lastReadedMsg = 0, countReadedMsgs = 0;
+    private int countReadedMsgs = 0, posit=0;
     private FirebaseAuth mAuth;
-    private Boolean ifInput = false;
+    private Boolean ifInput = false, scrool=true;
     private UUID uuidPhoto;
     private Toolbar toolbar;
 
@@ -85,10 +86,39 @@ public class MainActivity extends AppCompatActivity {
         editMsg = (EditText) findViewById(R.id.editMsg);
         recMsgs = (RecyclerView) findViewById(R.id.recyclerMsg);
         dataAdapter = new DataAdapterForMainMessages(this, messages, name, userID);
-        recMsgs.setLayoutManager(new LinearLayoutManager(this));
+        recMsgs.setLayoutManager(linearLayoutManager);
         recMsgs.setAdapter(dataAdapter);
+        recMsgs.smoothScrollToPosition(countReadedMsgs-1);
+        recMsgs.addOnScrollListener(new RecyclerView.OnScrollListener() {
 
-        recMsgs.smoothScrollToPosition(countReadedMsgs);
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if(scrool) {
+                    recMsgs.scrollToPosition(countReadedMsgs-1);
+                    scrool=false;
+                }
+            }
+
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if(linearLayoutManager.findLastVisibleItemPosition()==messages.size()-1){
+                  strelka_vniz.setVisibility(View.INVISIBLE);
+
+                    //recMsgs.smoothScrollToPosition(linearLayoutManager.findLastVisibleItemPosition());
+                }
+               /* if(linearLayoutManager.findLastCompletelyVisibleItemPosition()==messages.size()-1){
+                    Log.d("check","cool");
+                }*/
+               if(linearLayoutManager.findLastVisibleItemPosition()+1>countReadedMsgs){
+                   countReadedMsgs=linearLayoutManager.findLastVisibleItemPosition()+1;
+               }
+            }
+        });
+
+
+
 
         myRef.orderByChild("nickname").equalTo(dlgnm).addChildEventListener(new ChildEventListener() {
             @Override
@@ -121,6 +151,7 @@ public class MainActivity extends AppCompatActivity {
         btnInput.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                strelka_vniz.setVisibility(View.INVISIBLE);
                 int i = 0;
                 String msg = editMsg.getText().toString();
                 if (msg.isEmpty()) {
@@ -148,9 +179,8 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("Test", currentWithUserHashId + " " + name + " " + msg);
                 Log.d("Test", userID + " " + dlgnm + " " + msg);
                 editMsg.setText("");
-                countReadedMsgs = messages.size() + 1;
-                recMsgs.smoothScrollToPosition(countReadedMsgs);
-                //Toast.makeText(getApplicationContext(),currentWithUserHashId.toString(),Toast.LENGTH_SHORT).show();
+                countReadedMsgs++;
+                recMsgs.smoothScrollToPosition(countReadedMsgs-1);
             }
         });
 
@@ -198,17 +228,15 @@ public class MainActivity extends AppCompatActivity {
 
                 final String messg = dataSnapshot.getValue(String.class);
                 messages.add(messg);
-                lastReadedMsg = dataAdapter.getItemCount();
                 if (ifInput) {
                     myRef.child(currentWithUserHashId).child("dialogs_info").child("allCountMessages").child(name).setValue(messages.size());
                 }
                 myRef.child(userID).child("dialogs_info").child("allCountMessages").child(dlgnm).setValue(messages.size());
 
-                if(messages.size()>countReadedMsgs){
+                if(messages.size()+1>countReadedMsgs){
                     strelka_vniz.setVisibility(View.VISIBLE);
                 }
                 dataAdapter.notifyDataSetChanged();
-
             }
 
             @Override
@@ -218,7 +246,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-                messages.clear();
+
             }
 
             @Override
@@ -243,7 +271,7 @@ public class MainActivity extends AppCompatActivity {
         strelka_vniz.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                recMsgs.smoothScrollToPosition(messages.size());
+                recMsgs.smoothScrollToPosition(messages.size()-1);
                 strelka_vniz.setVisibility(View.INVISIBLE);
             }
         });
@@ -300,6 +328,7 @@ public class MainActivity extends AppCompatActivity {
     private void uploadImage() {
 
         if (selectedImage != null) {
+            strelka_vniz.setVisibility(View.INVISIBLE);
             StorageReference ref = storageReference.child("dialogs/" + userID + "/" + name + "/" + uuidPhoto);
             ref.putFile(selectedImage);
             myRef.child(userID).child("dialogs").child(dlgnm).push().setValue("dialogs/" + userID + "/" + name + "/" + uuidPhoto);
@@ -307,43 +336,42 @@ public class MainActivity extends AppCompatActivity {
             //ref.putFile(selectedImage);
             myRef.child(currentWithUserHashId).child("dialogs").child(name).push().setValue("dialogs/" + userID + "/" + name + "/" + uuidPhoto);
             selectedImage = null;
-            countReadedMsgs = messages.size() + 1;
+            countReadedMsgs++;
             recMsgs.smoothScrollToPosition(countReadedMsgs);
+            dataAdapter.notifyDataSetChanged();
         }
     }
-
 
     @Override
     protected void onPostResume() {
         stopService(new Intent(getApplicationContext(), MessageNotifficationService.class));
-        myRef.child(userID).child("dialogs_info").child("lastReadedMessage").child(dlgnm).setValue(lastReadedMsg);
+        myRef.child(userID).child("dialogs_info").child("lastReadedMessage").child(dlgnm).setValue(countReadedMsgs);
         super.onPostResume();
     }
 
     @Override
     protected void onStop() {
         startService(new Intent(getApplicationContext(), MessageNotifficationService.class));
-        myRef.child(userID).child("dialogs_info").child("lastReadedMessage").child(dlgnm).setValue(lastReadedMsg);
+        myRef.child(userID).child("dialogs_info").child("lastReadedMessage").child(dlgnm).setValue(countReadedMsgs);
         super.onStop();
     }
-
     @Override
     protected void onDestroy() {
         startService(new Intent(getApplicationContext(), MessageNotifficationService.class));
-        myRef.child(userID).child("dialogs_info").child("lastReadedMessage").child(dlgnm).setValue(lastReadedMsg);
+        myRef.child(userID).child("dialogs_info").child("lastReadedMessage").child(dlgnm).setValue(countReadedMsgs);
         super.onDestroy();
     }
 
     @Override
     protected void onResume() {
         stopService(new Intent(getApplicationContext(), MessageNotifficationService.class));
-        myRef.child(userID).child("dialogs_info").child("lastReadedMessage").child(dlgnm).setValue(lastReadedMsg);
+        myRef.child(userID).child("dialogs_info").child("lastReadedMessage").child(dlgnm).setValue(countReadedMsgs);
         super.onResume();
     }
 
     @Override
     public void onBackPressed() {
-        myRef.child(userID).child("dialogs_info").child("lastReadedMessage").child(dlgnm).setValue(lastReadedMsg);
+        myRef.child(userID).child("dialogs_info").child("lastReadedMessage").child(dlgnm).setValue(countReadedMsgs);
         startActivity(new Intent(this, DialogsWindow.class));
         overridePendingTransition(R.anim.invert_activity_down_up_close_enter,R.anim.invert_activity_down_up_close_exit);
         finish();

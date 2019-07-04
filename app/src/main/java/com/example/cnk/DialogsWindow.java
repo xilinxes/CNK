@@ -85,6 +85,7 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
                 countUnreadedMsgs.add("");
                 lastReadedMessage.add("");
                 allCountMessages.add("");
+                checkList.add("");
                 myRef.orderByChild("nickname").equalTo(messages.get(messages.size() - 1)).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -221,8 +222,12 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
                     allCountMessages.set(check,String.valueOf(dataSnapshot.child("allCountMessages").child(messages.get(check)).getValue()));
                     lastReadedMessage.set(check, String.valueOf(dataSnapshot.child("lastReadedMessage").child(messages.get(check)).getValue()));
                     for(int i=0; i<checkList.size();i++){
-                        if(!checkList.get(i).equals(allCountMessages.get(i))){
-                            ADAPTER_STATE.set(i,1);
+                        if (!checkList.get(i).equals("")){
+                            if (!checkList.get(i).equals(allCountMessages.get(i))) {
+                                for(int j=0; j<allCountMessages.size();j++){
+                                    ADAPTER_STATE.set(j,1);
+                                }
+                            }
                         }
                     }
                     int res = 0;
@@ -237,7 +242,7 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
                             countUnreadedMsgs.set(check, String.valueOf(res));
                         }
                         for(int i=0; i<allCountMessages.size(); i++) {
-                            checkList.add(allCountMessages.get(i));
+                            checkList.set(i,allCountMessages.get(i));
                         }
                     }
 
