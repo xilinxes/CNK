@@ -88,21 +88,21 @@ public class MainActivity extends AppCompatActivity {
         dataAdapter = new DataAdapterForMainMessages(this, messages, name, userID);
         recMsgs.setLayoutManager(linearLayoutManager);
         recMsgs.setAdapter(dataAdapter);
-        recMsgs.smoothScrollToPosition(countReadedMsgs-1);
+        recMsgs.smoothScrollToPosition(0);
         recMsgs.addOnScrollListener(new RecyclerView.OnScrollListener() {
 
             @Override
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                if(scrool) {
-                    recMsgs.scrollToPosition(countReadedMsgs-1);
-                    scrool=false;
-                }
             }
 
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
+                if(scrool) {
+                    recMsgs.scrollToPosition(countReadedMsgs-1);
+                    scrool=false;
+                }
                 if(linearLayoutManager.findLastVisibleItemPosition()==messages.size()-1){
                   strelka_vniz.setVisibility(View.INVISIBLE);
 
@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
                /* if(linearLayoutManager.findLastCompletelyVisibleItemPosition()==messages.size()-1){
                     Log.d("check","cool");
                 }*/
-               if(linearLayoutManager.findLastVisibleItemPosition()+1>countReadedMsgs){
+               if(linearLayoutManager.findLastVisibleItemPosition()>=countReadedMsgs){
                    countReadedMsgs=linearLayoutManager.findLastVisibleItemPosition()+1;
                }
             }
@@ -180,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("Test", userID + " " + dlgnm + " " + msg);
                 editMsg.setText("");
                 countReadedMsgs++;
-                recMsgs.smoothScrollToPosition(countReadedMsgs-1);
+                recMsgs.smoothScrollToPosition(countReadedMsgs -1);
             }
         });
 
@@ -224,7 +224,6 @@ public class MainActivity extends AppCompatActivity {
                     recMsgs.smoothScrollToPosition(messages.size());
                     // dataAdapter.notifyDataSetChanged();
                 }*/
-
 
                 final String messg = dataSnapshot.getValue(String.class);
                 messages.add(messg);
@@ -337,11 +336,10 @@ public class MainActivity extends AppCompatActivity {
             myRef.child(currentWithUserHashId).child("dialogs").child(name).push().setValue("dialogs/" + userID + "/" + name + "/" + uuidPhoto);
             selectedImage = null;
             countReadedMsgs++;
-            recMsgs.smoothScrollToPosition(countReadedMsgs);
-            dataAdapter.notifyDataSetChanged();
+            recMsgs.smoothScrollToPosition(countReadedMsgs-1);
         }
     }
-//
+
     @Override
     protected void onPostResume() {
         stopService(new Intent(getApplicationContext(), MessageNotifficationService.class));

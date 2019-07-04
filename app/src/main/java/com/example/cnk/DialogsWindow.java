@@ -2,9 +2,7 @@ package com.example.cnk;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
@@ -13,7 +11,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -49,8 +46,8 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
     Button dialog, save;
     String currentUsernickname, currentWithUserHashId;
     SharedPreferences.Editor ed;
-    private double x1, x2, y1, y2;
     int i = 0, j = 0, photo = 0, datachangedphoto = 0;
+    private double x1, x2, y1, y2;
     private Toolbar toolbar;
 
     @Override
@@ -70,7 +67,7 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
         dialog = findViewById(R.id.addDialog);
         recMsgs = (RecyclerView) findViewById(R.id.dialogs);
         recMsgs.setLayoutManager(new LinearLayoutManager(this));
-        final DataAdapter dataAdapter = new DataAdapter(this, messages, countUnreadedMsgs, avatarki, ADAPTER_STATE,this);
+        final DataAdapter dataAdapter = new DataAdapter(this, messages, countUnreadedMsgs, avatarki, ADAPTER_STATE, this);
         recMsgs.setAdapter(dataAdapter);
         adapter = new ArrayAdapter<>(this, R.layout.drop_down_spinner, baseOfNicks);
         name.setAdapter(adapter);
@@ -85,15 +82,18 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
                 countUnreadedMsgs.add("");
                 lastReadedMessage.add("");
                 allCountMessages.add("");
+                avatarki.add("");
                 checkList.add("");
-                myRef.orderByChild("nickname").equalTo(messages.get(messages.size() - 1)).addListenerForSingleValueEvent(new ValueEventListener() {
+                myRef.orderByChild("nickname").equalTo(messages.get(messages.size()-1)).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        avatarki.add("");
                         String x = String.valueOf(dataSnapshot.getValue());
                         x = x.substring(1, x.indexOf('='));
                         avatarki.set(photo, x);
 
+                        if (avatarki.size() == 4) {
+                            Log.d("dfsfsdfsdf", avatarki.get(0) + avatarki.get(1) + avatarki.get(2) + avatarki.get(3));
+                        }
                         myRef.child(avatarki.get(photo)).child("avatarka").addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -116,9 +116,7 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
 
                             }
                         });
-                        if (photo < messages.size() - 1) {
-                            photo++;
-                        }
+
 
                     }
 
@@ -126,7 +124,11 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
                     public void onCancelled(@NonNull DatabaseError databaseError) {
 
                     }
+
                 });
+                if (photo < messages.size() - 1) {
+                    photo++;
+                }
 
                /* myRef.addValueEventListener(new ValueEventListener() {
                     @Override
@@ -219,13 +221,13 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (check = 0; check < messages.size(); check++) {
-                    allCountMessages.set(check,String.valueOf(dataSnapshot.child("allCountMessages").child(messages.get(check)).getValue()));
+                    allCountMessages.set(check, String.valueOf(dataSnapshot.child("allCountMessages").child(messages.get(check)).getValue()));
                     lastReadedMessage.set(check, String.valueOf(dataSnapshot.child("lastReadedMessage").child(messages.get(check)).getValue()));
-                    for(int i=0; i<checkList.size();i++){
-                        if (!checkList.get(i).equals("")){
+                    for (int i = 0; i < checkList.size(); i++) {
+                        if (!checkList.get(i).equals("")) {
                             if (!checkList.get(i).equals(allCountMessages.get(i))) {
-                                for(int j=0; j<allCountMessages.size();j++){
-                                    ADAPTER_STATE.set(j,1);
+                                for (int j = 0; j < allCountMessages.size(); j++) {
+                                    ADAPTER_STATE.set(j, 1);
                                 }
                             }
                         }
@@ -241,8 +243,8 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
                         } else {
                             countUnreadedMsgs.set(check, String.valueOf(res));
                         }
-                        for(int i=0; i<allCountMessages.size(); i++) {
-                            checkList.set(i,allCountMessages.get(i));
+                        for (int i = 0; i < allCountMessages.size(); i++) {
+                            checkList.set(i, allCountMessages.get(i));
                         }
                     }
 
