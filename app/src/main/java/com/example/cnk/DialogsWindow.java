@@ -3,6 +3,7 @@ package com.example.cnk;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
@@ -46,9 +47,10 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
     Button dialog, save;
     String currentUsernickname, currentWithUserHashId;
     SharedPreferences.Editor ed;
-    int i = 0, j = 0, photo = 0, datachangedphoto = 0, checkForHandle = 0;
+    int i = 0, j = 0, photo = -1, datachangedphoto = 0, checkForHandle = 0;
     private double x1, x2, y1, y2;
     private Toolbar toolbar;
+    private Boolean valueList = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,118 +73,6 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
         recMsgs.setAdapter(dataAdapter);
         adapter = new ArrayAdapter<>(this, R.layout.drop_down_spinner, baseOfNicks);
         name.setAdapter(adapter);
-
-
-        myRef.child(userID).child("dialogs").addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                String x = String.valueOf(dataSnapshot.getKey());
-                messages.add(x);
-                ADAPTER_STATE.add(0);
-                countUnreadedMsgs.add("");
-                lastReadedMessage.add("");
-                allCountMessages.add("");
-                avatarki.add("");
-                checkList.add("");
-
-                myRef.orderByChild("nickname").equalTo(messages.get(messages.size()-1)).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        String x = String.valueOf(dataSnapshot.getValue());
-                        x = x.substring(1, x.indexOf('='));
-                        avatarki.set(messages.size()-1, x);
-
-                        if (avatarki.size() == 4) {
-                            Log.d("dfsfsdfsdf", avatarki.get(0) + avatarki.get(1) + avatarki.get(2) + avatarki.get(3));
-                        }
-                        myRef.child(avatarki.get(photo)).child("avatarka").addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
-                                avatarki.set(datachangedphoto, dataSnapshot.getValue(String.class));
-                                if (avatarki.get(datachangedphoto) == null)
-                                    avatarki.set(datachangedphoto, "emptyPhoto");
-
-
-                                if (datachangedphoto < messages.size() - 1) {
-                                    datachangedphoto++;
-                                }
-                                dataAdapter.notifyDataSetChanged();
-
-                            }
-
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                            }
-                        });
-
-
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                    }
-
-                });
-                if (photo < messages.size() - 1) {
-                    photo++;
-                }
-
-               /* myRef.addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        allCountMessages = String.valueOf(dataSnapshot.child(userID).child("dialogs_info").child("allCountMessages").child(messages.get(i)).getValue());
-                        lastReadedMessage.add(String.valueOf(dataSnapshot.child(userID).child("dialogs_info").child("lastReadedMessage").child(messages.get(i)).getValue()));
-                        int res;
-                        try {
-                            res = Integer.parseInt(allCountMessages) - Integer.parseInt(lastReadedMessage.get(i));
-                        } catch (NumberFormatException e) {
-                            res = 0;
-                        }
-                        if (res == 0) {
-                            countUnreadedMsgs.set(i, "");
-                        } else {
-                            countUnreadedMsgs.set(i, String.valueOf(res));
-                        }
-
-                        if (i < messages.size() - 1) {
-                            i++;
-                        }
-                        //dataAdapter.notifyDataSetChanged();
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                    }
-                });*/
-
-            }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-            }
-
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
 
 
         myRef.child("nicknames").addChildEventListener(new ChildEventListener() {
@@ -216,11 +106,98 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
             }
         });
 
+        myRef.child(userID).child("dialogs").addChildEventListener(new ChildEventListener() {
+            @Override
+            synchronized public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                String x = String.valueOf(dataSnapshot.getKey());
+                messages.add(x);
+                ADAPTER_STATE.add(0);
+                avatarki.add("");
+                countUnreadedMsgs.add("");
+                lastReadedMessage.add("");
+                allCountMessages.add("");
+                checkList.add("");
+                myRef.orderByChild("nickname").equalTo(messages.get(messages.size() - 1)).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    synchronized public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                        String x = String.valueOf(dataSnapshot.getValue());
+                        x = x.substring(1, x.indexOf('='));
+                        avatarki.set(photo+1, x);
+
+                        if (avatarki.size() == 4) {
+                            Log.d("dfsfsdfsdf", avatarki.get(0) + avatarki.get(1) + avatarki.get(2) + avatarki.get(3));
+                        }
+                        if (photo < messages.size() - 1) {
+                            photo++;
+                        }
+                        myRef.child(avatarki.get(photo)).child("avatarka").addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                                avatarki.set(datachangedphoto, dataSnapshot.getValue(String.class));
+                                if (avatarki.get(datachangedphoto) == null)
+                                    avatarki.set(datachangedphoto, "emptyPhoto");
+
+
+                                if (datachangedphoto < messages.size() - 1) {
+                                    datachangedphoto++;
+                                }
+                                if (photo < messages.size() - 1) {
+                                    photo++;
+                                }
+                                dataAdapter.notifyDataSetChanged();
+
+                            }
+
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                            }
+                        });
+
+
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+
+                });
+
+            }
+
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
         myRef.child(userID).child("dialogs_info").addValueEventListener(new ValueEventListener() {
             int check = 0;
 
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
                 for (check = 0; check < messages.size(); check++) {
                     allCountMessages.set(check, String.valueOf(dataSnapshot.child("allCountMessages").child(messages.get(check)).getValue()));
                     lastReadedMessage.set(check, String.valueOf(dataSnapshot.child("lastReadedMessage").child(messages.get(check)).getValue()));
@@ -248,16 +225,19 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
                             checkList.set(i, allCountMessages.get(i));
                         }
                     }
-
                 }
                 dataAdapter.notifyDataSetChanged();
             }
+
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
         });
+
+
+
 
 
         save.setOnClickListener(new View.OnClickListener() {

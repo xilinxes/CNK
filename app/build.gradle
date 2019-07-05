@@ -2,17 +2,30 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
 
 android {
+
+    signingConfigs {
+        release {
+            storeFile file("cnk.jks")
+            storePassword "123456"
+            keyAlias "cnk"
+            keyPassword "123456"
+        }
+    }
+
+
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.example.cnk"
         minSdkVersion 21
         targetSdkVersion 28
         versionCode 1
-        versionName "6.0"
+        versionName "7.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
+            debuggable false
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }

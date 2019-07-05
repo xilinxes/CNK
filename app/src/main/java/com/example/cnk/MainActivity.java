@@ -283,7 +283,7 @@ public class MainActivity extends AppCompatActivity {
         name = sPref.getString("Nickname", "r");
         dlgnm = sPref.getString("CurrentDialogName", "");
         dialogName += sPref.getString("CurrentDialogName", "");
-        countReadedMsgs = sPref.getInt("countReadedMsgs", 0);
+        countReadedMsgs = sPref.getInt("countReadedMsgs", 1);
         currentWithUserHashId = sPref.getString("CurrentWithUserHashId", "rrr");
     }
 
