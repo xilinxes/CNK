@@ -46,7 +46,7 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
     Button dialog, save;
     String currentUsernickname, currentWithUserHashId;
     SharedPreferences.Editor ed;
-    int i = 0, j = 0, photo = 0, datachangedphoto = 0;
+    int i = 0, j = 0, photo = 0, datachangedphoto = 0, checkForHandle = 0;
     private double x1, x2, y1, y2;
     private Toolbar toolbar;
 
@@ -84,12 +84,13 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
                 allCountMessages.add("");
                 avatarki.add("");
                 checkList.add("");
+
                 myRef.orderByChild("nickname").equalTo(messages.get(messages.size()-1)).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         String x = String.valueOf(dataSnapshot.getValue());
                         x = x.substring(1, x.indexOf('='));
-                        avatarki.set(photo, x);
+                        avatarki.set(messages.size()-1, x);
 
                         if (avatarki.size() == 4) {
                             Log.d("dfsfsdfsdf", avatarki.get(0) + avatarki.get(1) + avatarki.get(2) + avatarki.get(3));
