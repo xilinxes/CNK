@@ -58,22 +58,22 @@ public class DataAdapter extends RecyclerView.Adapter<ViewHolder> {
 
 
     @Override
-    public void onBindViewHolder(@NonNull final ViewHolder viewHolder, int i) {
+     public void onBindViewHolder(@NonNull final ViewHolder viewHolder, int i) {
         try {
             String msg = messages.get(i);
             String countMsgs = countUnreadedMsgs.get(i);
             if (ADAPTER_STATE.get(i) == 0) {
-                if (!avatarki.get(i).equals("emptyPhoto")) {
+                if (!avatarki.get(i).equals("emptyPhoto")&&avatarki.get(i).substring(0,5).equals("users")) {
                     StorageReference ref = storage.getReferenceFromUrl("gs://cnkfirebaseproject.appspot.com/" + avatarki.get(i));
                     ref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                         @Override
-                        public void onSuccess(Uri uri) {
+                         public void onSuccess(Uri uri) {
                             url = uri;
                             RequestOptions options = new RequestOptions()
                                     .centerCrop().circleCrop().priority(Priority.HIGH);
                             new GlideImageLoader(viewHolder.avatarka, viewHolder.prBar).load(String.valueOf(url), options);
 
-                            if (viewHolder.avatarka.getDrawable() != null) ;
+                          //  if (viewHolder.avatarka.getDrawable() != null) ;
                         }
                     });
                 } else {
@@ -88,6 +88,7 @@ public class DataAdapter extends RecyclerView.Adapter<ViewHolder> {
 
         }
     }
+
 
     @Override
     public int getItemCount() {

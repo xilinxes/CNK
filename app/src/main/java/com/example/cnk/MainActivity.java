@@ -15,6 +15,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -24,6 +26,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -32,6 +35,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
     ImageButton btnAddPhoto, strelka_vniz;
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     DatabaseReference myRef = database.getReference("Users");
-    Button btnInput;
+    ImageButton btnInput;
     EditText editMsg;
     LinkedList<String> messages = new LinkedList<>();
     RecyclerView recMsgs;
@@ -80,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference();
         //btnClear = (Button) findViewById(R.id.btnClear);
-        btnInput = (Button) findViewById(R.id.btnSndMsg);
+        btnInput = (ImageButton) findViewById(R.id.btnSndMsg);
         strelka_vniz = (ImageButton) findViewById(R.id.strelka_vniz);
         btnAddPhoto = (ImageButton) findViewById(R.id.btnAddPhoto);
         editMsg = (EditText) findViewById(R.id.editMsg);
@@ -88,7 +92,6 @@ public class MainActivity extends AppCompatActivity {
         dataAdapter = new DataAdapterForMainMessages(this, messages, name, userID);
         recMsgs.setLayoutManager(linearLayoutManager);
         recMsgs.setAdapter(dataAdapter);
-        recMsgs.smoothScrollToPosition(0);
         recMsgs.addOnScrollListener(new RecyclerView.OnScrollListener() {
 
             @Override
@@ -100,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 if(scrool) {
-                    recMsgs.scrollToPosition(countReadedMsgs-1);
+                    linearLayoutManager.scrollToPosition(countReadedMsgs-1);
                     scrool=false;
                 }
                 if(linearLayoutManager.findLastVisibleItemPosition()==messages.size()-1){
@@ -116,8 +119,7 @@ public class MainActivity extends AppCompatActivity {
                }
             }
         });
-
-
+        recMsgs.smoothScrollToPosition(countReadedMsgs);
 
 
         myRef.orderByChild("nickname").equalTo(dlgnm).addChildEventListener(new ChildEventListener() {
@@ -147,6 +149,29 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        editMsg.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if(!editMsg.getText().toString().isEmpty()){
+                    btnAddPhoto.setVisibility(View.INVISIBLE);
+                    btnInput.setVisibility(View.VISIBLE);
+                }
+                else {
+                    btnAddPhoto.setVisibility(View.VISIBLE);
+                    btnInput.setVisibility(View.INVISIBLE);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
 
         btnInput.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -159,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
                     editMsg.setText("");
                     return;
                 }
-                if (!msg.isEmpty()) {
+                else if (!msg.isEmpty()) {
                     while ((msg.charAt(i) == ' ' && i < msg.length()) || (msg.charAt(i) == '\n' && i < msg.length())) {
                         i++;
                         if (i == msg.length() || msg.isEmpty()) {
@@ -329,15 +354,22 @@ public class MainActivity extends AppCompatActivity {
         if (selectedImage != null) {
             strelka_vniz.setVisibility(View.INVISIBLE);
             StorageReference ref = storageReference.child("dialogs/" + userID + "/" + name + "/" + uuidPhoto);
-            ref.putFile(selectedImage);
-            myRef.child(userID).child("dialogs").child(dlgnm).push().setValue("dialogs/" + userID + "/" + name + "/" + uuidPhoto);
-            //ref = storageReference.child("dialogs/" + currentWithUserHashId + "/" + name + "/" + uuidPhoto);
-            //ref.putFile(selectedImage);
-            myRef.child(currentWithUserHashId).child("dialogs").child(name).push().setValue("dialogs/" + userID + "/" + name + "/" + uuidPhoto);
-            selectedImage = null;
-            countReadedMsgs++;
-            recMsgs.smoothScrollToPosition(countReadedMsgs-1);
+            ref.putFile(selectedImage).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    myRef.child(userID).child("dialogs").child(dlgnm).push().setValue("dialogs/" + userID + "/" + name + "/" + uuidPhoto);
+                    //ref = storageReference.child("dialogs/" + currentWithUserHashId + "/" + name + "/" + uuidPhoto);
+                    //ref.putFile(selectedImage);
+                    myRef.child(currentWithUserHashId).child("dialogs").child(name).push().setValue("dialogs/" + userID + "/" + name + "/" + uuidPhoto);
+                    selectedImage = null;
+                    countReadedMsgs++;
+                    recMsgs.smoothScrollToPosition(countReadedMsgs-1);
+                    dataAdapter.notifyDataSetChanged();
+                }
+            });
+
         }
+
     }
 
     @Override
@@ -353,6 +385,7 @@ public class MainActivity extends AppCompatActivity {
         myRef.child(userID).child("dialogs_info").child("lastReadedMessage").child(dlgnm).setValue(countReadedMsgs);
         super.onStop();
     }
+
     @Override
     protected void onDestroy() {
         startService(new Intent(getApplicationContext(), MessageNotifficationService.class));

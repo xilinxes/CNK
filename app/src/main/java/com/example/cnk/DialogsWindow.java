@@ -44,13 +44,14 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
     ArrayList<String> checkList = new ArrayList<>();
     ArrayList<String> allCountMessages = new ArrayList<>();
     ArrayAdapter<String> adapter;
+    DataAdapter dataAdapter;
     Button dialog, save;
     String currentUsernickname, currentWithUserHashId;
     SharedPreferences.Editor ed;
     int i = 0, j = 0, photo = -1, datachangedphoto = 0, checkForHandle = 0;
     private double x1, x2, y1, y2;
     private Toolbar toolbar;
-    private Boolean valueList = true;
+    private Boolean valueList = true, first = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,46 +70,14 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
         dialog = findViewById(R.id.addDialog);
         recMsgs = (RecyclerView) findViewById(R.id.dialogs);
         recMsgs.setLayoutManager(new LinearLayoutManager(this));
-        final DataAdapter dataAdapter = new DataAdapter(this, messages, countUnreadedMsgs, avatarki, ADAPTER_STATE, this);
+        dataAdapter = new DataAdapter(this, messages, countUnreadedMsgs, avatarki, ADAPTER_STATE, this);
         recMsgs.setAdapter(dataAdapter);
         adapter = new ArrayAdapter<>(this, R.layout.drop_down_spinner, baseOfNicks);
         name.setAdapter(adapter);
 
-
-        myRef.child("nicknames").addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                String nick = dataSnapshot.getValue(String.class);
-                baseOfNicks.add(nick);
-                adapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                String nick = dataSnapshot.getValue(String.class);
-                baseOfNicks.add(nick);
-                adapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-
         myRef.child(userID).child("dialogs").addChildEventListener(new ChildEventListener() {
             @Override
-            synchronized public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+            synchronized public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable final String s) {
                 String x = String.valueOf(dataSnapshot.getKey());
                 messages.add(x);
                 ADAPTER_STATE.add(0);
@@ -120,34 +89,25 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
                 myRef.orderByChild("nickname").equalTo(messages.get(messages.size() - 1)).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     synchronized public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
                         String x = String.valueOf(dataSnapshot.getValue());
                         x = x.substring(1, x.indexOf('='));
-                        avatarki.set(photo+1, x);
-
-                        if (avatarki.size() == 4) {
-                            Log.d("dfsfsdfsdf", avatarki.get(0) + avatarki.get(1) + avatarki.get(2) + avatarki.get(3));
-                        }
+                        avatarki.set(photo + 1, x);
                         if (photo < messages.size() - 1) {
                             photo++;
                         }
                         myRef.child(avatarki.get(photo)).child("avatarka").addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
                                 avatarki.set(datachangedphoto, dataSnapshot.getValue(String.class));
                                 if (avatarki.get(datachangedphoto) == null)
                                     avatarki.set(datachangedphoto, "emptyPhoto");
-
-
+                                dataAdapter.notifyItemChanged(datachangedphoto);
                                 if (datachangedphoto < messages.size() - 1) {
                                     datachangedphoto++;
                                 }
                                 if (photo < messages.size() - 1) {
                                     photo++;
                                 }
-                                dataAdapter.notifyDataSetChanged();
-
                             }
 
 
@@ -166,7 +126,6 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
                     }
 
                 });
-
             }
 
 
@@ -196,7 +155,7 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
             int check = 0;
 
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            synchronized public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
                 for (check = 0; check < messages.size(); check++) {
                     allCountMessages.set(check, String.valueOf(dataSnapshot.child("allCountMessages").child(messages.get(check)).getValue()));
@@ -236,8 +195,36 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
             }
         });
 
+        myRef.child("nicknames").addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                String nick = dataSnapshot.getValue(String.class);
+                baseOfNicks.add(nick);
+                adapter.notifyDataSetChanged();
+            }
 
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                String nick = dataSnapshot.getValue(String.class);
+                baseOfNicks.add(nick);
+                adapter.notifyDataSetChanged();
+            }
 
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
 
 
         save.setOnClickListener(new View.OnClickListener() {
@@ -302,11 +289,7 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
                 ed = sPref.edit();
                 ed.putString("CurrentDialogName", messages.get(pos).toString());
                 ed.putString("CurrentWithUserHashId", currentWithUserHashId);
-                try {
-                    ed.putInt("countReadedMsgs", Integer.parseInt(lastReadedMessage.get(pos)));
-                } catch (NumberFormatException e) {
-                    e.getStackTrace();
-                }
+                ed.putInt("countReadedMsgs", Integer.parseInt(lastReadedMessage.get(pos)));
                 //   ed.putString("Nickname",currentUsernickname);
                 ed.commit();
                 stopService(new Intent(getApplicationContext(), MessageNotifficationService.class));
@@ -400,5 +383,6 @@ public class DialogsWindow extends AppCompatActivity implements DataAdapter.OnNo
             }
         });
     }
+
 
 }
